@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="7d665746-64ed-4bfc-91eb-94e0fd77bebb" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/../.idea/Project1.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.idea/modules.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.idea/workspace.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../AccountManagementMicroservice/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../AccountManagementMicroservice/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../AccountManagementMicroservice/.idea/workspace.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../AccountManagementMicroservice/pom.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../AccountManagementMicroservice/src/main/java/org/example/AccountManagementApplication.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../AccountManagementMicroservice/src/main/resources/application.properties" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../EurekaDiscoveryService/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../EurekaDiscoveryService/.idea/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../EurekaDiscoveryService/.idea/encodings.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../EurekaDiscoveryService/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../EurekaDiscoveryService/.idea/uiDesigner.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../EurekaDiscoveryService/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../EurekaDiscoveryService/pom.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../EurekaDiscoveryService/src/main/java/org/example/EurekaDiscoveryApplication.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../EurekaDiscoveryService/src/main/resources/application.properties" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../SpringCloudAPIGateway/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../SpringCloudAPIGateway/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../SpringCloudAPIGateway/.idea/workspace.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../SpringCloudAPIGateway/notes/springCloudGatewayFiltersConfiguration" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../SpringCloudAPIGateway/pom.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../SpringCloudAPIGateway/src/main/java/org/example/SpringCloudAPIGatewayApplication.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../SpringCloudAPIGateway/src/main/java/org/example/config/GatewayFiltersConfig.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../SpringCloudAPIGateway/src/main/resources/application.properties" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../UserMicroservice/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../UserMicroservice/.idea/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../UserMicroservice/.idea/encodings.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../UserMicroservice/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../UserMicroservice/.idea/uiDesigner.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../UserMicroservice/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../UserMicroservice/pom.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../UserMicroservice/src/main/java/org/example/UserApplication.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../UserMicroservice/src/main/java/org/example/annotation/ValidateRequest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../UserMicroservice/src/main/java/org/example/aspect/RequestValidationAspect.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../UserMicroservice/src/main/java/org/example/config/HibernateConfig.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../UserMicroservice/src/main/java/org/example/config/SecurityConfig.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../UserMicroservice/src/main/java/org/example/controller/AuthController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../UserMicroservice/src/main/java/org/example/controller/UserController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../UserMicroservice/src/main/java/org/example/dialect/CustomMySQLDialect.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../UserMicroservice/src/main/java/org/example/exception/BadRequestException.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../UserMicroservice/src/main/java/org/example/exception/GlobalExceptionHandler.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../UserMicroservice/src/main/java/org/example/exception/InternalServerErrorException.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../UserMicroservice/src/main/java/org/example/exception/InvalidUsernameOrPasswordException.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../UserMicroservice/src/main/java/org/example/exception/ResourceNotFoundException.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../UserMicroservice/src/main/java/org/example/model/UtbAuthority.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../UserMicroservice/src/main/java/org/example/model/UtbPermission.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../UserMicroservice/src/main/java/org/example/model/UtbUser.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../UserMicroservice/src/main/java/org/example/model/dto/AuthorityDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../UserMicroservice/src/main/java/org/example/model/dto/ErrorResponseDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../UserMicroservice/src/main/java/org/example/model/dto/SuccessResponseDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../UserMicroservice/src/main/java/org/example/model/dto/UserDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../UserMicroservice/src/main/java/org/example/security/CustomAuthenticationProvider.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../UserMicroservice/src/main/java/org/example/security/CustomUserDetailsService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../UserMicroservice/src/main/java/org/example/security/securityFilter/CustomUsernamePasswordAuthenticationFilter.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../UserMicroservice/src/main/java/org/example/security/securityFilter/JWTTokenGenerationFilter.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../UserMicroservice/src/main/java/org/example/security/securityFilter/JWTTokenValidationFilter.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../UserMicroservice/src/main/java/org/example/service/AuthorityServices.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../UserMicroservice/src/main/java/org/example/service/PermissionServices.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../UserMicroservice/src/main/java/org/example/service/UserServices.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../UserMicroservice/src/main/java/org/example/utility/DTOMapperUtil.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../UserMicroservice/src/main/java/org/example/utility/GeneralUtil.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../UserMicroservice/src/main/java/org/example/utility/ResponseUtil.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../UserMicroservice/src/main/resources/application.properties" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ZuulAPIGateway/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ZuulAPIGateway/.idea/encodings.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ZuulAPIGateway/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ZuulAPIGateway/.idea/uiDesigner.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ZuulAPIGateway/.idea/workspace.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ZuulAPIGateway/pom.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ZuulAPIGateway/src/main/java/org/example/ZuulAPIGatewayApplication.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ZuulAPIGateway/src/main/resources/application.properties" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../.." />
+  </component>
+  <component name="ProjectId" id="2jb6aHPt4kgK8wqbyqtWPfidAvE" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true"
+  }
+}]]></component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="7d665746-64ed-4bfc-91eb-94e0fd77bebb" name="Changes" comment="" />
+      <created>1721643490948</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1721643490948</updated>
+    </task>
+    <servers />
+  </component>
+</project>

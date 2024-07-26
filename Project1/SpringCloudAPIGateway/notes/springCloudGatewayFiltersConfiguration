@@ -1,0 +1,208 @@
+1.  AddRequestHeader Filter
+    
+    Description: Adds a header to the request.
+
+    Use Case: When you need to add a custom header for requests being routed to downstream services.
+
+    Configuration:
+    
+    ```
+        spring.cloud.gateway.routes[0].filters[0].name=AddRequestHeader
+        spring.cloud.gateway.routes[0].filters[0].args.name=example
+        spring.cloud.gateway.routes[0].filters[0].args.value=value
+    ```
+    
+2. AddRequestParameter Filter
+    
+    Description: Adds a query parameter to the request.
+
+    Use Case: When you need to add specific parameters to requests being forwarded to downstream services.
+
+    Configuration:
+
+    ```
+        spring.cloud.gateway.routes[0].filters[0].name=AddRequestParameter
+        spring.cloud.gateway.routes[0].filters[0].args.name=example
+        spring.cloud.gateway.routes[0].filters[0].args.value=value
+    ```
+    
+3. AddResponseHeader Filter
+
+    Description: Adds a header to the response.
+
+    Use Case: When you need to include additional headers in the response sent back to clients.
+    
+    Configuration:
+
+    ```
+        spring.cloud.gateway.routes[0].filters[0].name=AddResponseHeader
+        spring.cloud.gateway.routes[0].filters[0].args.name=example
+        spring.cloud.gateway.routes[0].filters[0].args.value=value
+    ```
+    
+4. RewritePath Filter
+    
+    Description: Rewrites the path of the request.
+
+    Use Case: When you need to change the request path before forwarding to downstream services.
+
+    Configuration:
+
+    ```
+        spring.cloud.gateway.routes[0].filters[0].name=RewritePath
+        spring.cloud.gateway.routes[0].filters[0].args.regex=/service/(?<segment>.*)
+        spring.cloud.gateway.routes[0].filters[0].args.replacement=/newservice/${segment}
+    ```
+    
+5. RewriteResponseHeader Filter
+
+    Description: Rewrites a response header.
+
+    Use Case: When you need to modify the headers in the response before sending it back to the client.
+
+    Configuration:
+
+    ```
+        spring.cloud.gateway.routes[0].filters[0].name=RewriteResponseHeader
+        spring.cloud.gateway.routes[0].filters[0].args.name=Location
+        spring.cloud.gateway.routes[0].filters[0].args.regex=example.com
+        spring.cloud.gateway.routes[0].filters[0].args.replacement=example.org
+    ```
+    
+6. RemoveRequestHeader Filter
+
+    Description: Removes a header from the request.
+
+    Use Case: When you need to strip certain headers before the request reaches the downstream service.
+
+    Configuration:
+
+    ```
+        spring.cloud.gateway.routes[0].filters[0].name=RemoveRequestHeader
+        spring.cloud.gateway.routes[0].filters[0].args.name=example
+    ```
+    
+7. RemoveResponseHeader Filter
+
+    Description: Removes a header from the response.
+
+    Use Case: When you need to strip certain headers before sending the response back to the client.
+
+    Configuration:
+
+    ```
+        spring.cloud.gateway.routes[0].filters[0].name=RemoveResponseHeader
+        spring.cloud.gateway.routes[0].filters[0].args.name=example
+    ```
+    
+8. SetRequestHeader Filter
+
+    Description: Sets a header in the request, replacing any existing value.
+
+    Use Case: When you need to ensure that a header has a specific value before the request is forwarded.
+
+    Configuration:
+
+    ```
+        spring.cloud.gateway.routes[0].filters[0].name=SetRequestHeader
+        spring.cloud.gateway.routes[0].filters[0].args.name=example
+        spring.cloud.gateway.routes[0].filters[0].args.value=NewValue
+    ```
+    
+9. SetResponseHeader Filter
+
+    Description: Sets a header in the response, replacing any existing value.
+
+    Use Case: When you need to ensure that a response header has a specific value before it is sent back to the client.
+
+    Configuration:
+
+    ```
+        spring.cloud.gateway.routes[0].filters[0].name=SetResponseHeader
+        spring.cloud.gateway.routes[0].filters[0].args.name=example
+        spring.cloud.gateway.routes[0].filters[0].args.value=NewValue
+    ```
+    
+10. PrefixPath Filter
+
+    Description: Adds a prefix to the path of the request.
+
+    Use Case: When you need to add a specific prefix to the request path before forwarding it.
+
+    Configuration:
+
+    ```
+        spring.cloud.gateway.routes[0].filters[0].name=PrefixPath
+        spring.cloud.gateway.routes[0].filters[0].args.prefix=/prefix
+    ```
+    
+11. StripPrefix Filter
+
+    Description: Removes the specified number of prefix segments from the path of the request.
+
+    Use Case: When you need to strip specific segments from the request path.
+
+    Configuration:
+
+    ```
+        spring.cloud.gateway.routes[0].filters[0].name=StripPrefix
+        spring.cloud.gateway.routes[0].filters[0].args.parts=1
+    ```
+    
+12. CircuitBreaker Filter
+
+    Description: Applies a circuit breaker to the route.
+
+    Use Case: When you need to provide resilience and stability by using circuit breakers to handle service failures.
+
+    Configuration:
+
+    ```
+        spring.cloud.gateway.routes[0].filters[0].name=CircuitBreaker
+        spring.cloud.gateway.routes[0].filters[0].args.name=myCircuitBreaker
+        spring.cloud.gateway.routes[0].filters[0].args.fallbackUri=forward:/fallback
+    ```
+    
+13. Retry Filter
+
+    Description: Retries the request on failure.
+
+    Use Case: When you need to retry failed requests before giving up.
+
+    Configuration:
+
+    ```
+        spring.cloud.gateway.routes[0].filters[0].name=Retry
+        spring.cloud.gateway.routes[0].filters[0].args.retries=3
+        spring.cloud.gateway.routes[0].filters[0].args.statuses=BAD_GATEWAY,GATEWAY_TIMEOUT
+        spring.cloud.gateway.routes[0].filters[0].args.methods=GET,POST
+    ```
+    
+14. RequestRateLimiter Filter
+
+    Description: Applies rate limiting to the route.
+    
+    Use Case: When you need to control the rate of incoming requests to prevent overload.
+
+    Configuration:
+
+    ```
+        spring.cloud.gateway.routes[0].filters[0].name=RequestRateLimiter
+        spring.cloud.gateway.routes[0].filters[0].args.rate-limiter=myRateLimiter
+        spring.cloud.gateway.routes[0].filters[0].args.key-resolver=myKeyResolver
+    ```
+    
+15. DedupeResponseHeader Filter
+
+    Description: Removes duplicate response headers.
+
+    Use Case: When you need to clean up duplicate headers in the response.
+
+    Configuration:
+
+    ```
+        spring.cloud.gateway.routes[0].filters[0].name=DedupeResponseHeader
+        spring.cloud.gateway.routes[0].filters[0].args.name=Access-Control-Allow-Origin
+        spring.cloud.gateway.routes[0].filters[0].args.strategy=RETAIN_LAST
+    ```
+        
