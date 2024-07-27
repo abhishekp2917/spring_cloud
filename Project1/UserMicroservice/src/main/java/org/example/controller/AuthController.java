@@ -1,7 +1,11 @@
 package org.example.controller;
 
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.example.exception.InvalidUsernameOrPasswordException;
 import org.example.model.UtbUser;
+import org.example.model.dto.ErrorResponseDTO;
 import org.example.model.dto.SuccessResponseDTO;
 import org.example.model.dto.UserDTO;
 import org.example.service.UserServices;
@@ -33,6 +37,12 @@ public class AuthController {
      * @return A ResponseEntity with user details if authentication is successful,
      *         or throws InvalidUsernameOrPasswordException if authentication fails.
      */
+    @ApiOperation(value = "User Login",
+            notes = "Authenticate a user based on provided credentials. Returns user details if login is successful.")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Login successful", response = SuccessResponseDTO.class),
+            @ApiResponse(code = 401, message = "Invalid username or password", response = ErrorResponseDTO.class)
+    })
     @PostMapping("/login")
     public ResponseEntity<SuccessResponseDTO> login(Authentication authentication) {
         // Check if the Authentication object is not null and the user is authenticated.

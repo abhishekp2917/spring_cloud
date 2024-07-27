@@ -1,7 +1,11 @@
 package org.example.controller;
 
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.example.annotation.ValidateRequest;
 import org.example.model.UtbAuthority;
+import org.example.model.dto.ErrorResponseDTO;
 import org.example.model.dto.SuccessResponseDTO;
 import org.example.exception.InternalServerErrorException;
 import org.example.model.UtbUser;
@@ -47,6 +51,19 @@ public class UserController {
      *
      * @return A status message indicating the application is active.
      */
+    /**
+     * @ApiOperation
+     * Purpose: Describes a single API operation or endpoint in Swagger. It provides a summary and additional notes about what the operation does.
+     * Use Cases: Use @ApiOperation to document the purpose of an endpoint, such as @GetMapping("/status") to indicate it returns the application status.
+     *
+     * @ApiResponses
+     * Purpose: Documents the possible responses for an API operation, specifying the HTTP status codes and descriptions.
+     * Use Cases: Use @ApiResponses to indicate expected outcomes of an endpoint, like @ApiResponse(code = 200, message = "OK") for a successful response or @ApiResponse(code = 500, message = "Internal Server Error") for error scenarios.
+     */
+    @ApiOperation(value = "Check Application Status", notes = "Returns 'Active' if the application is running")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK")
+    })
     @GetMapping("/status")
     public String getStatus() {
         return "Active";  // Hardcoded status message. If this endpoint is not implemented, monitoring tools cannot confirm application health.
@@ -58,6 +75,11 @@ public class UserController {
      *
      * @return The server port configured in application properties.
      */
+    @ApiOperation(value = "Retrieve Server Port", notes = "Returns the server port from the environment properties")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK"),
+            @ApiResponse(code = 500, message = "Internal Server Error")
+    })
     @GetMapping("/env")
     public String getEnvironment() {
         return env.getProperty("server.port");  // Fetches the server port from environment properties. If not used, there would be no easy way to retrieve port configuration from the application.
@@ -72,6 +94,12 @@ public class UserController {
      * @return A ResponseEntity with a success message and user details if the operation is successful,
      *         or throws InternalServerErrorException if user creation fails.
      */
+    @ApiOperation(value = "User Signup", notes = "Registers a new user in the system")
+    @ApiResponses(value = {
+            @ApiResponse(code = 201, message = "User created successfully", response = SuccessResponseDTO.class),
+            @ApiResponse(code = 400, message = "Bad Request", response = ErrorResponseDTO.class),
+            @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResponseDTO.class)
+    })
     @PostMapping("/signup")
     @ValidateRequest  // Custom annotation used to validate the incoming request data before processing.
     public ResponseEntity<SuccessResponseDTO> signup(@RequestBody UtbUser user) {

@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.example</groupId>
+    <artifactId>GeneralUtils</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.2.1</version>
+    </parent>
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+    </dependencies>
+    <build>
+        <!--
+            Maven plugins are crucial for extending Maven's capabilities and customizing the build process.
+            They perform various tasks like compiling code, running tests, packaging applications, and more.
+        -->
+        <plugins>
+            <!--
+                The Maven Compiler Plugin is a core component in Maven that compiles Java source files.
+                It is used to specify the Java version for source code compilation and can be configured to handle various compilation options, including debugging and optimization.
+
+                Default Directories: Compiles Java files from src/main/java and outputs compiled classes (.class files) to target/classes.
+                Source and Target Versions: The source and target elements specify the Java version used for compiling source code and generating bytecode, respectively.
+                Output Directory: The outputDirectory element specifies the directory where the compiled classes will be placed. The default is target/classes.
+                Compiler Arguments: The compilerArgs element allows you to pass additional arguments to the Java compiler, providing more control over the compilation process.
+                Includes/Excludes: The includes and excludes elements can be used to specify which files or directories to include or exclude from compilation.
+                Forking: The fork element can be set to true to run the compiler in a separate process, allowing for custom configurations of the Java compiler.
+                Debug Information: The debug element can be used to include debugging information in the compiled classes, which is useful for development and debugging.
+                Encoding: The encoding element specifies the character encoding used for reading source files.
+            -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.1</version>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                    <compilerArgs>
+                        <arg>-sourcepath</arg>
+                        <arg>${project.build.sourceDirectory}</arg>
+                    </compilerArgs>
+                    <outputDirectory>${project.build.outputDirectory}</outputDirectory>
+                </configuration>
+            </plugin>
+            <!--
+                The Maven JAR Plugin is used to package a Maven project into a JAR file. Here are key points about this plugin and what can be configured:
+
+                Packaging: The plugin packages the project's compiled classes and resources into a JAR file, which is the standard format for Java libraries and applications.
+                Output Directory: The outputDirectory element specifies the directory where the JAR file will be created. By default, this is target.
+                Main Class: For executable JARs, the archive element's manifestEntries can be used to specify the Main-Class, which is the entry point for the application.
+                Includes/Excludes: You can control which files are included or excluded in the JAR using includes and excludes elements under the fileset configuration.
+                Final Name: The finalName element allows you to set a custom name for the generated JAR file.
+                Manifest Customization: You can customize the manifest file of the JAR using the manifestEntries element to add custom attributes.
+                Packaging Types: It supports different packaging types such as jar, war, or ear depending on the project needs.
+                Dependencies: You can include dependencies in the JAR by configuring the includeDependencyClasses parameter.
+            -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.2.0</version>
+                <configuration>
+                    <finalName>${project.artifactId}-${project.version}</finalName>
+                    <outputDirectory>${project.build.directory}</outputDirectory>
+                    <archive>
+                        <manifestEntries>
+                            <Built-By>${user.name}</Built-By>
+                            <Build-Jdk>${maven.compiler.source}</Build-Jdk>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
+
+
+
+
+
