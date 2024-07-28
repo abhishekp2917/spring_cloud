@@ -7,7 +7,8 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.example.utility.GeneralUtil;
+import org.example.ServerUtil;
+import org.example.exception.InvalidTokenException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -39,29 +40,31 @@ public class JWTTokenValidationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
         // Extract the JWT token from the request cookie
-        String jwt = GeneralUtil.extractCookieFromRequest(request, environment.getProperty("jwt.cookie.name"));
-
+        String jwt = ServerUtil.extractCookieFromHttpRequest(request, environment.getProperty("jwt.cookie.name"));
         if (jwt != null) {
-            // Retrieve the secret key and validate the JWT token against the key
-            SecretKey key = Keys.hmacShaKeyFor(environment.getProperty("jwt.secretKey").getBytes(StandardCharsets.UTF_8));
-            Claims claims = Jwts.parser()
-                    .verifyWith(key)
-                    .build()
-                    .parseSignedClaims(jwt)
-                    .getPayload();
-
-            // If the JWT token is valid, extract the username and associated authorities
-            String username = String.valueOf(claims.get("username"));
-            String authorities = (String) claims.get("authorities");
-
-            // Create an Authentication token and set it in the security context
-            // This indicates to Spring Security that the user has been authenticated,
-            // so the BasicAuthenticationFilter will not be executed
-            Authentication auth = new UsernamePasswordAuthenticationToken(username, null,
-                    AuthorityUtils.commaSeparatedStringToAuthorityList(authorities));
-            SecurityContextHolder.getContext().setAuthentication(auth);
+            try {
+                // Retrieve the secret key and validate the JWT token against the key
+                SecretKey key = Keys.hmacShaKeyFor(environment.getProperty("jwt.secretKey").getBytes(StandardCharsets.UTF_8));
+                Claims claims = Jwts.parser()
+                        .verifyWith(key)
+                        .build()
+                        .parseSignedClaims(jwt)
+                        .getPayload();
+                // If the JWT token is valid, extract the username and associated authorities
+                String username = String.valueOf(claims.get("username"));
+                String authorities = (String) claims.get("authorities");
+                // Create an Authentication token and set it in the security context
+                // This indicates to Spring Security that the user has been authenticated,
+                // so the BasicAuthenticationFilter will not be executed
+                Authentication auth = new UsernamePasswordAuthenticationToken(username, null,
+                        AuthorityUtils.commaSeparatedStringToAuthorityList(authorities));
+                SecurityContextHolder.getContext().setAuthentication(auth);
+            }
+            catch (Exception ex) {
+                // throwing InvalidTokenException pf type AuthenticationException so that it will trigger AuthenticationEntryPoint
+                throw new InvalidTokenException(ex.getMessage());
+            }
         }
-
         // Continue with the filter chain
         filterChain.doFilter(request, response);
     }

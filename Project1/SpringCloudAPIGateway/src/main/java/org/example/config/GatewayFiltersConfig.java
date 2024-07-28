@@ -1,5 +1,7 @@
 package org.example.config;
 
+import org.example.filter.JWTAuthorizationFilter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gateway.route.RouteLocator;
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
 import org.springframework.context.annotation.Bean;
@@ -12,6 +14,9 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class GatewayFiltersConfig {
 
+    @Autowired
+    JWTAuthorizationFilter jwtAuthorizationFilter;
+
     /**
      * Defines a custom RouteLocator bean.
      * This bean sets up routing rules for the API Gateway to forward requests to the appropriate microservices.
@@ -23,6 +28,13 @@ public class GatewayFiltersConfig {
     @Bean
     public RouteLocator customRouteLocator(RouteLocatorBuilder builder) {
         return builder.routes()
+                // Define a route for /status and /env path in user-ms to apply custom filters to these paths
+                // Since these paths are secured, JWT token must be present in the request to these paths.
+                // To check if token is present, JwtAuthorizationFilter custom filer is being applied to this path which will intercept the request before passing the request to user-ms
+                .route("users-authenticated-route", r -> r
+                        .path("/user/status", "/user/env")
+                        .filters(f -> f.filter(jwtAuthorizationFilter.apply(new JWTAuthorizationFilter.Config())))
+                        .uri("lb://user-ms"))
                 // Define a route for user-related requests
                 // This route matches any request with the path starting with /user/ and request type should be 'GET' or 'POST'
                 // There should be a Cookie in the header and a query parameter named 'version' in the request URL

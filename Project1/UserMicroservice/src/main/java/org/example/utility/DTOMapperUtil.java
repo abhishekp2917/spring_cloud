@@ -2,8 +2,8 @@ package org.example.utility;
 
 import org.example.model.UtbAuthority;
 import org.example.model.UtbUser;
-import org.example.model.dto.AuthorityDTO;
-import org.example.model.dto.UserDTO;
+import org.example.dto.AuthorityDTO;
+import org.example.dto.UserDTO;
 import java.util.stream.Collectors;
 
 public class DTOMapperUtil {

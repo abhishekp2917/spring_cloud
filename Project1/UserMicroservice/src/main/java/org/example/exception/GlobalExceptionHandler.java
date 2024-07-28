@@ -1,6 +1,6 @@
 package org.example.exception;
 
-import org.example.model.dto.ErrorResponseDTO;
+import org.example.dto.ErrorResponseDTO;
 import org.example.utility.ResponseUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

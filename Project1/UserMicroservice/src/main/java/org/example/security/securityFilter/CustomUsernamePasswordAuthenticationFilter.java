@@ -1,6 +1,7 @@
 package org.example.security.securityFilter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.example.exception.InvalidUsernameOrPasswordException;
 import org.example.model.UtbUser;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -75,9 +76,9 @@ public class CustomUsernamePasswordAuthenticationFilter extends UsernamePassword
                 Authentication auth = new UsernamePasswordAuthenticationToken(username, null, authorities);
                 SecurityContextHolder.getContext().setAuthentication(auth);
             }
-        } catch (Exception e) {
-            // If an exception occurs, continue with the filter chain
-            chain.doFilter(request, response);
+        } catch (Exception ex) {
+            // throwing InvalidUsernameOrPasswordException pf type AuthenticationException so that it will trigger AuthenticationEntryPoint
+            throw new InvalidUsernameOrPasswordException(ex.getMessage());
         }
 
         // Continue with the filter chain

@@ -1,8 +1,8 @@
 package org.example.utility;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.example.model.dto.ErrorResponseDTO;
-import org.example.model.dto.SuccessResponseDTO;
+import org.example.dto.ErrorResponseDTO;
+import org.example.dto.SuccessResponseDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import jakarta.servlet.http.HttpServletResponse;

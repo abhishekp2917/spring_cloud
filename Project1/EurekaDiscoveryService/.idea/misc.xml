@@ -11,6 +11,8 @@
         <option value="$PROJECT_DIR$/../SpringCloudAPIGateway/pom.xml" />
         <option value="$PROJECT_DIR$/../ConfigServer/pom.xml" />
         <option value="$PROJECT_DIR$/../SpringCloudConfigServer/pom.xml" />
+        <option value="$PROJECT_DIR$/../../GeneralUtils/pom.xml" />
+        <option value="$PROJECT_DIR$/../../DTOLib/pom.xml" />
       </list>
     </option>
     <option name="ignoredFiles">

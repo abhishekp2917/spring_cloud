@@ -60,7 +60,10 @@ public class JWTTokenGenerationFilter extends OncePerRequestFilter {
 
             // Place the generated token inside a response cookie
             Cookie JWTCookie = new Cookie(environment.getProperty("jwt.cookie.name"), jwt);
-            JWTCookie.setHttpOnly(true); // Ensure cookie is not accessible via JavaScript
+            // Ensure cookie is accessible for all the paths
+            JWTCookie.setPath("/");
+            // Ensure cookie is not accessible via JavaScript
+            JWTCookie.setHttpOnly(true);
             response.addCookie(JWTCookie);
         }
 
