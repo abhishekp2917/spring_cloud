@@ -22,6 +22,8 @@ import java.time.format.DateTimeFormatter;
  * JWTAuthorizationFilter is a custom filter used in the API Gateway to validate JWT tokens in incoming requests.
  * It extends AbstractGatewayFilterFactory and checks if the JWT token is present in the request cookies.
  * If the token is missing or invalid, the filter responds with an HTTP 401 Unauthorized status and a JSON error message.
+ *
+ * This filter needs to be configured explicitly to the routes and will be triggered only for those routes which has this filter configured.
  */
 @Component
 public class JWTAuthorizationFilter extends AbstractGatewayFilterFactory<JWTAuthorizationFilter.Config> {
