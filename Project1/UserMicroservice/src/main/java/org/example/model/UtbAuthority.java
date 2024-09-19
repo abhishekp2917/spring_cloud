@@ -17,8 +17,13 @@ public class UtbAuthority {
     @Column(name = "authorityID")
     private long id;
     private String name;
-    @ManyToMany(mappedBy = "authorities", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private Set<UtbUser> users;
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "UtbAuthorityRoles",
+            joinColumns = @JoinColumn(name = "authorityID"),
+            inverseJoinColumns = @JoinColumn(name = "roleID")
+    )
+    private Set<UtbRole> roles;
     @ManyToMany(mappedBy = "authorities", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private Set<UtbPermission> permissions;
 }

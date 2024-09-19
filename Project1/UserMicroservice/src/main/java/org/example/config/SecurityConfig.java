@@ -2,6 +2,7 @@ package org.example.config;
 
 import org.example.model.UtbAuthority;
 import org.example.model.UtbPermission;
+import org.example.model.UtbRole;
 import org.example.security.CustomUserDetailsService;
 import org.example.security.securityFilter.CustomUsernamePasswordAuthenticationFilter;
 import org.example.security.securityFilter.JWTTokenGenerationFilter;
@@ -246,18 +247,26 @@ public class SecurityConfig {
      * Configures authorization rules based on permissions and authorities.
      *
      * This method sets up authorization rules for various URL patterns based on permissions defined in the
-     * {@link PermissionServices}. It retrieves permissions and their associated authorities, and then maps
+     * {@link PermissionServices}. It retrieves permissions and their associated authorities and roles, and then maps
      * each permission to a set of authorities required to access specific URL patterns. This ensures that only
-     * users with the appropriate authorities can access restricted resources.
+     * users with the appropriate authorities or role can access restricted resources.
      *
      * @param http the {@link HttpSecurity} object to configure
      * @throws Exception if an error occurs during configuration
      */
     private void configureAuthorization(HttpSecurity http) throws Exception {
         ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry registry = http.authorizeRequests();
+        Map<String, Set<String>> permissionRolesMap = new HashMap<>();
         Map<String, Set<String>> permissionAuthoritiesMap = new HashMap<>();
-        for (UtbPermission permission : permissionServices.getPermissions()) {
+        for (UtbPermission permission : permissionServices.getPermissions(environment.getProperty("spring.application.name"))) {
+            Set<UtbRole> roles = permission.getRoles();
             Set<UtbAuthority> authorities = permission.getAuthorities();
+            if (roles != null) {
+                Set<String> roleNames = roles.stream()
+                        .map(UtbRole::getName)
+                        .collect(Collectors.toSet());
+                permissionRolesMap.put(permission.getName(), roleNames);
+            }
             if (authorities != null) {
                 Set<String> authorityNames = authorities.stream()
                         .map(UtbAuthority::getName)
@@ -265,9 +274,13 @@ public class SecurityConfig {
                 permissionAuthoritiesMap.put(permission.getName(), authorityNames);
             }
         }
+        for (Map.Entry<String, Set<String>> permissionEntry : permissionRolesMap.entrySet()) {
+            String[] roles = permissionEntry.getValue().toArray(new String[0]);
+            if(roles.length>0) registry.requestMatchers(permissionEntry.getKey()).hasAnyRole(roles);
+        }
         for (Map.Entry<String, Set<String>> permissionEntry : permissionAuthoritiesMap.entrySet()) {
             String[] authorities = permissionEntry.getValue().toArray(new String[0]);
-            registry.requestMatchers(permissionEntry.getKey()).hasAnyAuthority(authorities);
+            if(authorities.length>0) registry.requestMatchers(permissionEntry.getKey()).hasAnyAuthority(authorities);
         }
     }
 

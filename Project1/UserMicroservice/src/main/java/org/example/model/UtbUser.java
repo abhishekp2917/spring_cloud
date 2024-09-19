@@ -25,9 +25,9 @@ public class UtbUser {
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
-            name = "UtbUserAuthority",
+            name = "UtbUserRoles",
             joinColumns = @JoinColumn(name = "userID"),
-            inverseJoinColumns = @JoinColumn(name = "authorityID")
+            inverseJoinColumns = @JoinColumn(name = "roleID")
     )
-    private Set<UtbAuthority> authorities;
+    private Set<UtbRole> roles;
 }

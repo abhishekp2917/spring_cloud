@@ -20,6 +20,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import javax.crypto.SecretKey;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.List;
 
 @Component
 public class JWTTokenValidationFilter extends OncePerRequestFilter {
@@ -78,6 +80,11 @@ public class JWTTokenValidationFilter extends OncePerRequestFilter {
      */
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
-        return request.getServletPath().equals(environment.getProperty("login.url"));
+        List<String> excludedPaths = Arrays.asList(
+                environment.getProperty("login.url"),
+                environment.getProperty("signup.url"));
+        String servletPath = request.getServletPath();
+        // Check if the servlet path is in the list of excluded paths
+        return excludedPaths.contains(servletPath);
     }
 }

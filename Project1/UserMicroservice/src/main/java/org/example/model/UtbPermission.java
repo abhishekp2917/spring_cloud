@@ -16,12 +16,20 @@ public class UtbPermission {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "permissionID")
     private long id;
+    private String service;
     private String name;
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "UtbAuthorityPermission",
             joinColumns = @JoinColumn(name = "permissionID"),
             inverseJoinColumns = @JoinColumn(name = "authorityID")
     )
     private Set<UtbAuthority> authorities;
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "UtbRolePermission",
+            joinColumns = @JoinColumn(name = "permissionID"),
+            inverseJoinColumns = @JoinColumn(name = "roleID")
+    )
+    private Set<UtbRole> roles;
 }

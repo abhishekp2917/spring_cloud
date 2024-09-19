@@ -13,11 +13,15 @@
         <option value="$PROJECT_DIR$/../SpringCloudConfigServer/pom.xml" />
         <option value="$PROJECT_DIR$/../../GeneralUtils/pom.xml" />
         <option value="$PROJECT_DIR$/../../DTOLib/pom.xml" />
+        <option value="$PROJECT_DIR$/../ProductService/pom.xml" />
+        <option value="$PROJECT_DIR$/../OrderService/pom.xml" />
+        <option value="$PROJECT_DIR$/../../../springframework/spring/Demo1/pom.xml" />
       </list>
     </option>
     <option name="ignoredFiles">
       <set>
         <option value="$PROJECT_DIR$/../ConfigServer/pom.xml" />
+        <option value="$PROJECT_DIR$/../../../springframework/spring/Demo1/pom.xml" />
       </set>
     </option>
   </component>

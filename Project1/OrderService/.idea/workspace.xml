@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="13fdd8bf-d64f-47a6-91f4-c06c9e06861d" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/../ProductService/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ProductService/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ProductService/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ProductService/.idea/workspace.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ProductService/pom.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ProductService/src/main/java/org/example/ProductApplication.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ProductService/src/main/java/org/example/config/HibernateConfig.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ProductService/src/main/java/org/example/controller/ProductController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ProductService/src/main/java/org/example/dto/ErrorResponseDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ProductService/src/main/java/org/example/dto/ProductDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ProductService/src/main/java/org/example/dto/SuccessResponseDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ProductService/src/main/java/org/example/exception/GlobalExceptionHandler.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ProductService/src/main/java/org/example/exception/ResourceNotFoundException.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ProductService/src/main/java/org/example/model/UtbCategory.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ProductService/src/main/java/org/example/model/UtbProduct.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ProductService/src/main/java/org/example/service/CategoryServices.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ProductService/src/main/java/org/example/service/ProductServices.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ProductService/src/main/java/org/example/utility/DTOMapperUtil.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ProductService/src/main/java/org/example/utility/ResponseUtil.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ProductService/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../EurekaDiscoveryService/.idea/encodings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../EurekaDiscoveryService/.idea/encodings.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../EurekaDiscoveryService/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../EurekaDiscoveryService/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../SpringCloudAPIGateway/src/main/java/org/example/config/GatewayFiltersConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/../SpringCloudAPIGateway/src/main/java/org/example/config/GatewayFiltersConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../SpringCloudConfigServer/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/../SpringCloudConfigServer/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../SpringCloudConfigServer/src/main/resources/configuration/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/../SpringCloudConfigServer/src/main/resources/configuration/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../SpringCloudConfigServer/src/main/resources/configuration/user-ms.properties" beforeDir="false" afterPath="$PROJECT_DIR$/../SpringCloudConfigServer/src/main/resources/configuration/user-ms.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../UserMicroservice/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../UserMicroservice/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../UserMicroservice/src/main/java/org/example/controller/UserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/../UserMicroservice/src/main/java/org/example/controller/UserController.java" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../.." />
+  </component>
+  <component name="ProjectId" id="2jyPOBHbjj6kz6hkUJ5ZKRpNWf0" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true"
+  }
+}]]></component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="13fdd8bf-d64f-47a6-91f4-c06c9e06861d" name="Changes" comment="" />
+      <created>1722356308641</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1722356308641</updated>
+    </task>
+    <servers />
+  </component>
+</project>

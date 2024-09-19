@@ -1,9 +1,9 @@
 package org.example.aspect;
 
 import org.example.exception.BadRequestException;
-import org.example.model.UtbAuthority;
+import org.example.model.UtbRole;
 import org.example.model.UtbUser;
-import org.example.service.AuthorityServices;
+import org.example.service.RoleServices;
 import org.example.service.UserServices;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
 public class RequestValidationAspect {
 
     @Autowired
-    private AuthorityServices authorityServices;
+    private RoleServices roleServices;
 
     @Autowired
     private UserServices userServices;
@@ -64,11 +64,11 @@ public class RequestValidationAspect {
             isValid = false;
             errorMessage = "Password must not be empty";
         }
-        else if (user.getAuthorities() == null || user.getAuthorities().isEmpty()) {
+        else if (user.getRoles() == null || user.getRoles().isEmpty()) {
             isValid = false;
-            errorMessage = "User must have at least one authority";
+            errorMessage = "User must have at least one role";
         }
-        else if (!areValidAuthorities(user.getAuthorities())) {
+        else if (!areValidAuthorities(user.getRoles())) {
             isValid = false;
             errorMessage = "Invalid authority supplied";
         }
@@ -82,19 +82,19 @@ public class RequestValidationAspect {
     }
 
     /**
-     * Checks if the provided authorities are valid.
+     * Checks if the provided roles are valid.
      *
-     * This method verifies that all authority IDs in the given set are present in the list of existing authority IDs.
+     * This method verifies that all role IDs in the given set are present in the list of existing role IDs.
      *
-     * @param authorities the set of {@code UtbAuthority} to validate
-     * @return {@code true} if all authorities are valid, {@code false} otherwise
+     * @param roles the set of {@code UtbRole} to validate
+     * @return {@code true} if all roles are valid, {@code false} otherwise
      */
-    private boolean areValidAuthorities(Set<UtbAuthority> authorities) {
-        Set<Long> existingAuthoritiesId = authorityServices.getAuthoritiesId();
-        return existingAuthoritiesId
+    private boolean areValidAuthorities(Set<UtbRole> roles) {
+        Set<Long> existingRolesId = roleServices.getRolesId();
+        return existingRolesId
                 .containsAll(
-                        authorities.stream()
-                                .map(UtbAuthority::getId)
+                        roles.stream()
+                                .map(UtbRole::getId)
                                 .collect(Collectors.toSet())
                 );
     }

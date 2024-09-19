@@ -1,6 +1,7 @@
 package org.example.security;
 
 import org.example.model.UtbAuthority;
+import org.example.model.UtbRole;
 import org.example.model.UtbUser;
 import org.example.service.UserServices;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,13 +57,18 @@ public class CustomUserDetailsService implements UserDetailsService {
 
         // If the user is found, convert it to a UserDetails object
         if (user != null) {
-            // Ff user exists, create User object which has username, password and authority details in it and return the object
+            // If user exists, create User object which has username, password, role and authority details in it and return the object
             // SimpleGrantedAuthority being implementation of GrantedAuthority, we passed the list of GrantedAuthority to User object.
-            // This list will have all the authority that this particular user has
+            // This list will have all the role and the authority that this particular user has
             List<GrantedAuthority> authorities = new ArrayList<>();
-            for (UtbAuthority authority : user.getAuthorities()) {
-                // Convert each UtbAuthority to a SimpleGrantedAuthority
-                authorities.add(new SimpleGrantedAuthority(authority.getName()));
+            for (UtbRole role : user.getRoles()) {
+                // Convert each UtbRole to a SimpleGrantedAuthority
+                authorities.add(new SimpleGrantedAuthority(role.getName()));
+                // Enumerating over authority a particular role has
+                for (UtbAuthority authority : role.getAuthorities()) {
+                    // Convert each UtbAuthority to a SimpleGrantedAuthority
+                    authorities.add(new SimpleGrantedAuthority(authority.getName()));
+                }
             }
             // Return a User object with username, password, and authorities
             return new User(user.getUsername(), user.getPassword(), authorities);

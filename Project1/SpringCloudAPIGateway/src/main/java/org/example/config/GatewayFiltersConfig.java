@@ -39,7 +39,7 @@ public class GatewayFiltersConfig {
                 // This route matches any request with the path starting with /user/ and request type should be 'GET' or 'POST'
                 // There should be a Cookie in the header and a query parameter named 'version' in the request URL
                 .route("users-route", r -> r
-                        .path("/user/*")
+                        .path("/user/**")
 //                        .and()
 //                        .method("GET", "POST").and()
 //                        .header("Cookie", "*").and()
@@ -88,9 +88,15 @@ public class GatewayFiltersConfig {
                 // Define a route for account management-related requests
                 // This route matches any request with the path starting with /account/
                 .route("account-management-route", r -> r
-                        .path("/account/*")
+                        .path("/account/**")
                         // Routes this request to the "accountManagement-ms" microservice using load balancing
                         .uri("lb://accountManagement-ms"))
+                // Define a route for /status and /env path in user-ms to apply custom filters to these paths
+                // Since these paths are secured, JWT token must be present in the request to these paths.
+                // To check if token is present, JwtAuthorizationFilter custom filer is being applied to this path which will intercept the request before passing the request to user-ms
+                .route("product-route", r -> r
+                        .path("/product/**")
+                        .uri("lb://product-ms"))
                 .build();
     }
 }

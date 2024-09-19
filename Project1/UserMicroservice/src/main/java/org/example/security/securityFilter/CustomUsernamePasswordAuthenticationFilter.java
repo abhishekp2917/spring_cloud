@@ -2,6 +2,8 @@ package org.example.security.securityFilter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.exception.InvalidUsernameOrPasswordException;
+import org.example.model.UtbAuthority;
+import org.example.model.UtbRole;
 import org.example.model.UtbUser;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -56,13 +58,18 @@ public class CustomUsernamePasswordAuthenticationFilter extends UsernamePassword
             String password = user.getPassword();
             if (password == null) password = "";
 
-            // Convert user authorities to a list of GrantedAuthority
+            // Convert user roles and authorities to a list of GrantedAuthority
             List<GrantedAuthority> authorities = null;
-            if (user.getAuthorities() != null) {
-                authorities = user.getAuthorities()
-                        .stream()
-                        .map(authority -> new SimpleGrantedAuthority(authority.getName()))
-                        .collect(Collectors.toList());
+            if (user.getRoles() != null) {
+                for (UtbRole role : user.getRoles()) {
+                    // Convert each UtbRole to a SimpleGrantedAuthority
+                    authorities.add(new SimpleGrantedAuthority(role.getName()));
+                    // Enumerating over authority a particular role has
+                    for (UtbAuthority authority : role.getAuthorities()) {
+                        // Convert each UtbAuthority to a SimpleGrantedAuthority
+                        authorities.add(new SimpleGrantedAuthority(authority.getName()));
+                    }
+                }
             }
 
             // Create an authentication token with the username and password

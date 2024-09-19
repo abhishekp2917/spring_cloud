@@ -2,10 +2,14 @@ package org.example.config;
 
 import org.example.model.UtbAuthority;
 import org.example.model.UtbPermission;
+import org.example.model.UtbRole;
 import org.example.model.UtbUser;
 import org.hibernate.SessionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
+
 import java.io.IOException;
 import java.util.Properties;
 
@@ -31,8 +35,12 @@ import java.util.Properties;
 @Configuration
 public class HibernateConfig {
 
+    @Autowired
+    Environment environment;
+
     private final Class<?>[] modelClasses = new Class<?>[] {
             UtbUser.class,
+            UtbRole.class,
             UtbAuthority.class,
             UtbPermission.class
     };
@@ -52,7 +60,14 @@ public class HibernateConfig {
         try {
             // Load Hibernate properties from the application.properties file
             Properties properties = new Properties();
-            properties.load(HibernateConfig.class.getClassLoader().getResourceAsStream("application.properties"));
+            properties.put("hibernate.connection.driver_class", environment.getProperty("hibernate.connection.driver_class"));
+            properties.put("hibernate.connection.url", environment.getProperty("hibernate.connection.url"));
+            properties.put("hibernate.connection.username", environment.getProperty("hibernate.connection.username"));
+            properties.put("hibernate.connection.password", environment.getProperty("hibernate.connection.password"));
+            properties.put("hibernate.dialect", environment.getProperty("hibernate.dialect"));
+            properties.put("hibernate.hbm2ddl.auto", environment.getProperty("hibernate.hbm2ddl.auto"));
+            properties.put("hibernate.show_sql", environment.getProperty("hibernate.show_sql"));
+            properties.put("hibernate.format_sql", environment.getProperty("hibernate.format_sql"));
 
             // Create and configure the Hibernate Configuration object
             org.hibernate.cfg.Configuration config = new org.hibernate.cfg.Configuration().setProperties(properties);
@@ -64,11 +79,7 @@ public class HibernateConfig {
 
             // Build and return the SessionFactory
             return config.buildSessionFactory();
-        }
-        catch (IOException ex) {
-            throw new RuntimeException("Failed to load Hibernate properties", ex);
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             throw new RuntimeException("Error creating SessionFactory", ex);
         }
     }

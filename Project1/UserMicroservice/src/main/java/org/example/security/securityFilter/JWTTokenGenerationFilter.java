@@ -17,10 +17,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import javax.crypto.SecretKey;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 @Component
 public class JWTTokenGenerationFilter extends OncePerRequestFilter {
@@ -73,14 +70,19 @@ public class JWTTokenGenerationFilter extends OncePerRequestFilter {
 
     /**
      * Determines if the filter should be applied to the current request.
-     * The filter is applied only if the requested URL is '/user/login', as this is used for the initial authentication.
+     * The filter is applied only if the requested URL is '/user/login' or '/user/signup', as this is used for the initial authentication.
      *
      * @param request The HTTP request
      * @return True if the filter should be applied, false otherwise
      */
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
-        return !request.getServletPath().equals(environment.getProperty("login.url"));
+        List<String> includedPaths = Arrays.asList(
+                environment.getProperty("login.url"),
+                environment.getProperty("signup.url"));
+        String servletPath = request.getServletPath();
+        // Check if the servlet path is not in the list of included paths
+        return !includedPaths.contains(servletPath);
     }
 
     /**
