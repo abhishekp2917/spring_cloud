@@ -101,6 +101,13 @@ public class GatewayFiltersConfig {
                 .route("order-route", r -> r
                         .path("/order/**")
                         .uri("lb://order-ms"))
+                // Define a route for the user-ms actuators
+                // This route matches any request with the path starting with /monitor/
+                .route("user-ms-actuator-route", r -> r
+                        .path("/monitor/**")
+                        .and()
+                        .method("GET", "POST")
+                        .uri("lb://user-ms"))
                 .build();
     }
 }

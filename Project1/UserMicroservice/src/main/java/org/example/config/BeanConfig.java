@@ -1,5 +1,7 @@
 package org.example.config;
 
+import org.springframework.boot.actuate.web.exchanges.HttpExchangeRepository;
+import org.springframework.boot.actuate.web.exchanges.InMemoryHttpExchangeRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -30,5 +32,22 @@ public class BeanConfig {
     @Bean
     public PasswordEncoder customPasswordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    /**
+     * Creates an {@link HttpExchangeRepository} bean to store HTTP exchange data in memory.
+     * <p>
+     * This bean provides the mechanism for storing the last 100 HTTP request-response exchanges
+     * that pass through the Spring Boot application. The {@link InMemoryHttpExchangeRepository}
+     * keeps these exchanges in an in-memory structure, making them available for Actuator's
+     * {@code httpexchanges} endpoint. It is useful for inspecting and monitoring HTTP traffic
+     * in the application.
+     * </p>
+     *
+     * @return an {@link InMemoryHttpExchangeRepository} instance to store HTTP exchanges.
+     */
+    @Bean
+    public HttpExchangeRepository getHttpExchangeRepository() {
+        return new InMemoryHttpExchangeRepository();
     }
 }
