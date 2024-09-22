@@ -16,6 +16,7 @@
         <option value="$PROJECT_DIR$/../ProductService/pom.xml" />
         <option value="$PROJECT_DIR$/../OrderService/pom.xml" />
         <option value="$PROJECT_DIR$/../../../springframework/spring/Demo1/pom.xml" />
+        <option value="$PROJECT_DIR$/../EurekaDiscoveryServiceCluster/pom.xml" />
       </list>
     </option>
     <option name="ignoredFiles">

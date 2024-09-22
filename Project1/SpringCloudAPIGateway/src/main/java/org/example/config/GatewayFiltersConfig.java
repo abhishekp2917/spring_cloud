@@ -91,12 +91,16 @@ public class GatewayFiltersConfig {
                         .path("/account/**")
                         // Routes this request to the "accountManagement-ms" microservice using load balancing
                         .uri("lb://accountManagement-ms"))
-                // Define a route for /status and /env path in user-ms to apply custom filters to these paths
-                // Since these paths are secured, JWT token must be present in the request to these paths.
-                // To check if token is present, JwtAuthorizationFilter custom filer is being applied to this path which will intercept the request before passing the request to user-ms
+                // Define a route for product related requests
+                // This route matches any request with the path starting with /product/
                 .route("product-route", r -> r
                         .path("/product/**")
                         .uri("lb://product-ms"))
+                // Define a route for order related requests
+                // This route matches any request with the path starting with /order/
+                .route("order-route", r -> r
+                        .path("/order/**")
+                        .uri("lb://order-ms"))
                 .build();
     }
 }

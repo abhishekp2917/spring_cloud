@@ -1,5 +1,6 @@
 package org.example.client;
 
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import org.example.dto.APIResponseDTO;
 import org.example.dto.ProductDTO;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -13,7 +14,7 @@ import java.util.List;
  * product-related endpoints in the product microservice. It abstracts away the details of
  * HTTP communication and allows interaction with the product microservice using Java method calls.
  */
-@FeignClient(name = "product-ms")  // Indicates that this interface is a Feign client for the 'product-ms' service.
+@FeignClient(name = "product-ms", configuration = ProductServiceClientConfig.class)  // Indicates that this interface is a Feign client for the 'product-ms' service.
 public interface ProductServiceClient {
 
     /**
@@ -25,5 +26,13 @@ public interface ProductServiceClient {
      *         in the specified category.
      */
     @GetMapping("/product/category")  // Maps the method to the '/product/category' GET endpoint of the product microservice.
+    @CircuitBreaker(name = "product-ms", fallbackMethod = "getProductByCategoryNameFallback")
     public APIResponseDTO<List<ProductDTO>> getProductByCategoryName(@RequestParam(name = "category") String category);
+
+    default APIResponseDTO<List<ProductDTO>> getProductByCategoryNameFallback(String category) {
+        APIResponseDTO<List<ProductDTO>> response = new APIResponseDTO<>();
+        response.setStatus(503);
+        response.setError("Service Unavailable");
+        return response;
+    }
 }
