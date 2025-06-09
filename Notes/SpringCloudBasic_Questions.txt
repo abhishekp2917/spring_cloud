@@ -1,0 +1,320 @@
+*   What is Eureka Discovery Service ?
+
+>>  Eureka Discovery Service is a part of the Spring Cloud Netflix suite and is used for service registration and 
+    discovery in a microservices architecture.
+
+    What is Eureka ?
+
+        - In a distributed system, microservices need to find and communicate with each other. 
+        
+        - Hardcoding IPs or hostnames isn't scalable. 
+        
+        - Eureka is a REST-based service developed by Netflix solves this problem by acting as a service registry, where 
+          all services register themselves and query other services.
+
+________________________________________________________________________________________________________________________
+
+*   What are the key components of Eureka ?
+
+>>  (1) Eureka Server:	
+
+        - A centralized registry that stores metadata of all the registered microservices.
+
+    (2) Eureka Client:
+    	
+        - A service that registers itself with the Eureka server and uses it to discover other services.
+
+________________________________________________________________________________________________________________________
+
+*   How does Eureka works ?
+
+>>  (1) Service Registration:
+
+        - A microservice (Eureka client) starts up and registers itself with the Eureka server by providing metadata 
+          like host, port, health check URL, etc.
+
+    (2) Service Discovery:
+
+        - A client needing another service will query the Eureka server to get the list of instances of that service 
+          and make a REST call.
+
+    (3) Heartbeats:
+
+        - Eureka clients periodically send heartbeats to the Eureka server to confirm they're still alive.
+
+    (4) Self-Preservation Mode:
+
+        - If many instances fail or disconnect due to network issues, Eureka assumes it might be a network problem and 
+          stops expiring instances to avoid mass deregistration.
+
+    Example:
+
+        - Let’s say you have two microservices:
+
+            - user-service
+            - order-service
+
+        - Both services register themselves with Eureka.
+
+        - Now, if order-service needs to call user-service, it doesn’t need the actual IP. It just asks Eureka:
+
+            ```
+                RestTemplate restTemplate = new RestTemplate();
+                String userServiceUrl = "http://user-service/users/123";
+                User user = restTemplate.getForObject(userServiceUrl, User.class);
+            ```
+
+        - Spring Cloud will automatically resolve user-service from Eureka and load balance across instances.
+
+________________________________________________________________________________________________________________________
+
+*   How to setup Eureka Server ?
+
+>>  (1) Create a Spring Boot Project and add Dependencies (Maven):
+
+        ```
+            <!-- Eureka Server -->
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-starter-netflix-eureka-server</artifactId>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-web</artifactId>
+            </dependency>
+
+            <dependencyManagement>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.springframework.cloud</groupId>
+                        <artifactId>spring-cloud-dependencies</artifactId>
+                        <version>2021.0.8</version> <!-- Use a stable version -->
+                        <type>pom</type>
+                        <scope>import</scope>
+                    </dependency>
+                </dependencies>
+            </dependencyManagement>
+        ```
+
+    (2) Main Application Class:
+
+        - @EnableEurekaServer makes Spring Boot app a Eureka Server
+
+        ```
+            @EnableEurekaServer
+            @SpringBootApplication
+            public class EurekaServerApplication {
+
+                public static void main(String[] args) {
+                    SpringApplication.run(EurekaServerApplication.class, args);
+                }
+            }
+        ```
+
+    (3) application.properties:
+
+        - This property sets the name of your Spring Boot application, which is used for identification purposes.
+
+            ```
+                spring.application.name=eureka-discovery
+            ```
+
+        - By setting this property to 'false', the application will not attempt to register itself with a Eureka server.
+        
+            ``` 
+                eureka.client.register-with-eureka=false
+            ```
+        
+        - This property specifies the hostname that the Eureka client will use to register itself with the Eureka server.
+          
+            ```
+                eureka.instance.hostname=eureka-service
+            ```
+        
+    (4) Run the server and visit http://localhost:8085
+
+________________________________________________________________________________________________________________________
+
+*   How to setup Eureka Client ?
+
+>>  (1) Create a Spring Boot Project and add dependencies:
+
+        ```
+            <!-- Eureka Client -->
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-web</artifactId>
+            </dependency>
+
+            <dependencyManagement>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.springframework.cloud</groupId>
+                        <artifactId>spring-cloud-dependencies</artifactId>
+                        <version>2021.0.8</version> <!-- Use a stable version -->
+                        <type>pom</type>
+                        <scope>import</scope>
+                    </dependency>
+                </dependencies>
+            </dependencyManagement>
+        ```
+
+    (2) Main Application Class:
+
+        - @EnableEurekaClient registers a service as a Eureka Client
+
+        - @EnableEurekaClient is optional since Spring Boot auto-configures it when 
+          spring-cloud-starter-netflix-eureka-client is on the classpath.
+
+        ```
+            @SpringBootApplication
+            @EnableEurekaClient
+            public class MyServiceApplication {
+                public static void main(String[] args) {
+                    SpringApplication.run(MyServiceApplication.class, args);
+                }
+            }
+        ```
+
+
+    (3) application.properties:
+    
+        - This property sets the name of your Spring Boot application, which is used for identification purposes.
+
+            ```
+                spring.application.name=my-service
+            ```
+        
+        - This property configures the URL where your Spring Boot application can locate the Eureka server.
+
+            ```
+                eureka.client.serviceUrl.defaultZone=http://${eureka.user.username}:${eureka.user.password}@eureka-service:8085/eureka
+            ```
+
+    (4) Run & Test:
+
+        - Start Eureka Server
+
+        - Start my-service (Eureka Client)
+
+        - Go to http://localhost:8085. You’ll see MY-SERVICE registered.
+
+________________________________________________________________________________________________________________________
+
+*   What is the difference between @EnableDiscoveryClient and @EnableEurekaClient ?
+
+>>  (1) @EnableDiscoveryClient:
+        
+        - It is a generic annotation provided by Spring Cloud which works with multiple discovery services, such as:
+
+            - Eureka
+            - Zookeeper
+
+    (2) @EnableEurekaClient:
+
+        - It is specific to Eureka (Netflix Eureka) provided by Spring Cloud Netflix.
+
+        - Internally also registers a DiscoveryClient, but only works with Eureka.
+
+________________________________________________________________________________________________________________________
+
+*   What is Zookeeper ?
+
+>>  Apache ZooKeeper is a distributed coordination service designed to manage a large set of hosts (i.e., nodes) in a 
+    distributed system. 
+    
+    It helps distributed applications achieve synchronization, configuration management, naming, and group services — 
+    all crucial for building fault-tolerant systems.
+
+________________________________________________________________________________________________________________________
+
+*   Can Eureka Server be clustered ? 
+
+>>  Yes, Eureka Server can be clustered, and it uses a peer-to-peer replication model to share service registry data 
+    among Eureka server instances.
+
+    Each server instance is both a peer and a replica.
+
+    How does peer-to-peer replication work in Eureka:
+
+        - Client instances register with one of the Eureka servers.
+        
+        - The Eureka server saves the registration and replicates it to its peer Eureka servers (defined in config)
+
+        - When a client deregisters, expires, or renews its heartbeat that event is replicated across the cluster.
+
+        - Clients can connect to any Eureka server in the cluster and get the same registry information, as all servers 
+          replicate data between each other.
+
+________________________________________________________________________________________________________________________
+
+*   How to setup Eureka Server Cluster ?
+
+>>   (1) Create Eureka Server Project:
+
+        - In each Eureka server app, use this configuration:
+
+            ```
+                <dependency>
+                    <groupId>org.springframework.cloud</groupId>
+                    <artifactId>spring-cloud-starter-netflix-eureka-server</artifactId>
+                </dependency>
+            ```
+        
+        Main Class:
+
+            ```
+                @EnableEurekaServer
+                @SpringBootApplication
+                public class EurekaServerApplication {
+                    public static void main(String[] args) {
+                        SpringApplication.run(EurekaServerApplication.class, args);
+                    }
+                }
+            ```
+
+    (2) Configure each Eureka Server application.properties:
+
+        - Assume we are setting up 3 Eureka servers running on different ports or hosts.
+
+        eureka-discovery-1:
+
+            ```
+                spring.application.name=eureka-discovery-1
+                eureka.instance.hostname=eureka1.com
+                eureka.client.serviceUrl.defaultZone=http://eureka2.com:8762/eureka/,http://eureka3.com:8763/eureka/
+            ```
+
+        eureka-discovery-2:
+
+            ```
+                spring.application.name=eureka-discovery-2
+                eureka.instance.hostname=eureka2.com
+                eureka.client.serviceUrl.defaultZone=http://eureka1.com:8761/eureka/,http://eureka3.com:8763/eureka/
+            ```
+
+        eureka-discovery-3:
+            
+            ```
+                spring.application.name=eureka-discovery-3
+                eureka.instance.hostname=eureka3.com
+                eureka.client.serviceUrl.defaultZone=http://eureka1.com:8761/eureka/,http://eureka2.com:8762/eureka/
+            ```
+            
+    (3) Test the Cluster:
+
+        - Start all three Eureka servers.
+
+        - Each server UI (http://localhost:8761, :8762, :8763) will show the other two as peer nodes under 
+          "Instances currently registered with Eureka".
+
+        - You can also register a sample microservice client and check if it appears on all Eureka UIs.
+
+________________________________________________________________________________________________________________________
+🧠

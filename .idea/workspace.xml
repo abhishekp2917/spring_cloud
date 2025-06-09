@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="ec4e196e-1b9c-43fa-969f-cdbe0759c388" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/jarRepositories.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/runConfigurations/ConfigServerApplication.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/runConfigurations/EurekaDiscoverService1.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/runConfigurations/EurekaDiscoverService2.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/runConfigurations/EurekaDiscoverService3.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/runConfigurations/OrderService1.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/runConfigurations/OrderService2.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/runConfigurations/ProductService1.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/runConfigurations/ProductService2.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/runConfigurations/SpringCloudAPIGateway.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/runConfigurations/UserService2.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/SpringCloudConfigServer/src/main/resources/configuration/order-ms.properties" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/UserService/.idea/encodings.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/UserService/pom.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/UserService/src/main/java/org/example/exception/BadRequestException.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/UserService/src/main/java/org/example/exception/InvalidTokenException.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/run1.bat" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/run2.bat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/.idea/Project1.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Project1.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/.idea/misc.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/.idea/modules.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/AccountManagementMicroservice/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/AccountManagementMicroservice/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/AccountManagementMicroservice/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/AccountManagementMicroservice/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/AccountManagementMicroservice/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/AccountManagementMicroservice/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/AccountManagementMicroservice/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/AccountManagementMicroservice/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/AccountManagementMicroservice/src/main/java/org/example/AccountManagementApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/AccountManagementMicroservice/src/main/java/org/example/AccountManagementApplication.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/AccountManagementMicroservice/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/AccountManagementMicroservice/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/AccountManagementMicroservice/src/main/resources/bootstrap.properties" beforeDir="false" afterPath="$PROJECT_DIR$/AccountManagementMicroservice/src/main/resources/bootstrap.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/EurekaDiscoveryService/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/EurekaDiscoveryService/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/EurekaDiscoveryService/.idea/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/EurekaDiscoveryService/.idea/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/EurekaDiscoveryService/.idea/encodings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/EurekaDiscoveryService/.idea/encodings.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/EurekaDiscoveryService/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/EurekaDiscoveryService/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/EurekaDiscoveryService/.idea/uiDesigner.xml" beforeDir="false" afterPath="$PROJECT_DIR$/EurekaDiscoveryService/.idea/uiDesigner.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/EurekaDiscoveryService/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/EurekaDiscoveryService/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/EurekaDiscoveryService/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/EurekaDiscoveryService/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/EurekaDiscoveryService/src/main/java/org/example/EurekaDiscoveryApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/EurekaDiscoveryService/src/main/java/org/example/EurekaDiscoveryApplication.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/EurekaDiscoveryService/src/main/java/org/example/config/SecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/EurekaDiscoveryService/src/main/java/org/example/config/SecurityConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/EurekaDiscoveryService/src/main/resources/application-eurekaservice1.properties" beforeDir="false" afterPath="$PROJECT_DIR$/EurekaDiscoveryService/src/main/resources/application-eurekaservice1.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/EurekaDiscoveryService/src/main/resources/application-eurekaservice2.properties" beforeDir="false" afterPath="$PROJECT_DIR$/EurekaDiscoveryService/src/main/resources/application-eurekaservice2.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/EurekaDiscoveryService/src/main/resources/application-eurekaservice3.properties" beforeDir="false" afterPath="$PROJECT_DIR$/EurekaDiscoveryService/src/main/resources/application-eurekaservice3.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/EurekaDiscoveryService/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/EurekaDiscoveryService/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/OrderService/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/OrderService/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/OrderService/.idea/encodings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/OrderService/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/OrderService/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/OrderService/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/OrderService/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/OrderService/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/OrderService/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/OrderService/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/OrderService/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/OrderService/src/main/java/org/example/OrderApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/OrderService/src/main/java/org/example/OrderApplication.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/OrderService/src/main/java/org/example/client/FeignErrorDecoder.java" beforeDir="false" afterPath="$PROJECT_DIR$/OrderService/src/main/java/org/example/client/FeignErrorDecoder.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/OrderService/src/main/java/org/example/client/ProductServiceClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/OrderService/src/main/java/org/example/client/ProductServiceClient.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/OrderService/src/main/java/org/example/client/ProductServiceClientConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/OrderService/src/main/java/org/example/client/ProductServiceClientConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/OrderService/src/main/java/org/example/client/ProductServiceClientFallback.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/OrderService/src/main/java/org/example/config/BeanConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/OrderService/src/main/java/org/example/config/BeanConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/OrderService/src/main/java/org/example/controller/OrderController.java" beforeDir="false" afterPath="$PROJECT_DIR$/OrderService/src/main/java/org/example/controller/OrderController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/OrderService/src/main/java/org/example/dto/APIResponseDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/OrderService/src/main/java/org/example/dto/APIResponseDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/OrderService/src/main/java/org/example/dto/ProductDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/OrderService/src/main/java/org/example/dto/ProductDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/OrderService/src/main/java/org/example/service/OrderServices.java" beforeDir="false" afterPath="$PROJECT_DIR$/OrderService/src/main/java/org/example/service/OrderServices.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/OrderService/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/OrderService/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/ProductService/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/ProductService/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/ProductService/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/ProductService/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/ProductService/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/ProductService/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/ProductService/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/ProductService/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/ProductService/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/ProductService/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/ProductService/src/main/java/org/example/ProductApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/ProductService/src/main/java/org/example/ProductApplication.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/ProductService/src/main/java/org/example/config/HibernateConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/ProductService/src/main/java/org/example/config/HibernateConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/ProductService/src/main/java/org/example/config/SecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/ProductService/src/main/java/org/example/config/SecurityConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/ProductService/src/main/java/org/example/controller/ProductController.java" beforeDir="false" afterPath="$PROJECT_DIR$/ProductService/src/main/java/org/example/controller/ProductController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/ProductService/src/main/java/org/example/dto/APIResponseDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/ProductService/src/main/java/org/example/dto/APIResponseDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/ProductService/src/main/java/org/example/dto/CategoryDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/ProductService/src/main/java/org/example/dto/CategoryDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/ProductService/src/main/java/org/example/dto/ErrorResponseDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/ProductService/src/main/java/org/example/dto/ErrorResponseDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/ProductService/src/main/java/org/example/dto/ProductDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/ProductService/src/main/java/org/example/dto/ProductDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/ProductService/src/main/java/org/example/dto/SuccessResponseDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/ProductService/src/main/java/org/example/dto/SuccessResponseDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/ProductService/src/main/java/org/example/exception/GlobalExceptionHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/ProductService/src/main/java/org/example/exception/GlobalExceptionHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/ProductService/src/main/java/org/example/exception/ResourceNotFoundException.java" beforeDir="false" afterPath="$PROJECT_DIR$/ProductService/src/main/java/org/example/exception/ResourceNotFoundException.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/ProductService/src/main/java/org/example/model/UtbAuthority.java" beforeDir="false" afterPath="$PROJECT_DIR$/ProductService/src/main/java/org/example/model/UtbAuthority.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/ProductService/src/main/java/org/example/model/UtbCategory.java" beforeDir="false" afterPath="$PROJECT_DIR$/ProductService/src/main/java/org/example/model/UtbCategory.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/ProductService/src/main/java/org/example/model/UtbPermission.java" beforeDir="false" afterPath="$PROJECT_DIR$/ProductService/src/main/java/org/example/model/UtbPermission.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/ProductService/src/main/java/org/example/model/UtbProduct.java" beforeDir="false" afterPath="$PROJECT_DIR$/ProductService/src/main/java/org/example/model/UtbProduct.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/ProductService/src/main/java/org/example/model/UtbRole.java" beforeDir="false" afterPath="$PROJECT_DIR$/ProductService/src/main/java/org/example/model/UtbRole.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/ProductService/src/main/java/org/example/model/UtbUser.java" beforeDir="false" afterPath="$PROJECT_DIR$/ProductService/src/main/java/org/example/model/UtbUser.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/ProductService/src/main/java/org/example/security/securityFilter/JWTTokenValidationFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/ProductService/src/main/java/org/example/security/securityFilter/JWTTokenValidationFilter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/ProductService/src/main/java/org/example/service/AuthorityServices.java" beforeDir="false" afterPath="$PROJECT_DIR$/ProductService/src/main/java/org/example/service/AuthorityServices.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/ProductService/src/main/java/org/example/service/CategoryServices.java" beforeDir="false" afterPath="$PROJECT_DIR$/ProductService/src/main/java/org/example/service/CategoryServices.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/ProductService/src/main/java/org/example/service/PermissionServices.java" beforeDir="false" afterPath="$PROJECT_DIR$/ProductService/src/main/java/org/example/service/PermissionServices.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/ProductService/src/main/java/org/example/service/ProductServices.java" beforeDir="false" afterPath="$PROJECT_DIR$/ProductService/src/main/java/org/example/service/ProductServices.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/ProductService/src/main/java/org/example/utility/DTOMapperUtil.java" beforeDir="false" afterPath="$PROJECT_DIR$/ProductService/src/main/java/org/example/utility/DTOMapperUtil.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/ProductService/src/main/java/org/example/utility/ResponseUtil.java" beforeDir="false" afterPath="$PROJECT_DIR$/ProductService/src/main/java/org/example/utility/ResponseUtil.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/ProductService/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/ProductService/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/SpringCloudAPIGateway/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/SpringCloudAPIGateway/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/SpringCloudAPIGateway/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/SpringCloudAPIGateway/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/SpringCloudAPIGateway/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/SpringCloudAPIGateway/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/SpringCloudAPIGateway/notes/springCloudGatewayFiltersConfiguration" beforeDir="false" afterPath="$PROJECT_DIR$/SpringCloudAPIGateway/notes/springCloudGatewayFiltersConfiguration" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/SpringCloudAPIGateway/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/SpringCloudAPIGateway/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/SpringCloudAPIGateway/src/main/java/org/example/SpringCloudAPIGatewayApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/SpringCloudAPIGateway/src/main/java/org/example/SpringCloudAPIGatewayApplication.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/SpringCloudAPIGateway/src/main/java/org/example/config/GatewayFiltersConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/SpringCloudAPIGateway/src/main/java/org/example/config/GatewayFiltersConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/SpringCloudAPIGateway/src/main/java/org/example/config/GlobalFiltersConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/SpringCloudAPIGateway/src/main/java/org/example/config/GlobalFiltersConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/SpringCloudAPIGateway/src/main/java/org/example/dto/ErrorResponseDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/SpringCloudAPIGateway/src/main/java/org/example/dto/ErrorResponseDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/SpringCloudAPIGateway/src/main/java/org/example/filter/JWTAuthorizationFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/SpringCloudAPIGateway/src/main/java/org/example/filter/JWTAuthorizationFilter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/SpringCloudAPIGateway/src/main/java/org/example/filter/globalFilter/RequestLoggingPreFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/SpringCloudAPIGateway/src/main/java/org/example/filter/globalFilter/RequestLoggingPreFilter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/SpringCloudAPIGateway/src/main/java/org/example/filter/globalFilter/ResponseLoggingPostFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/SpringCloudAPIGateway/src/main/java/org/example/filter/globalFilter/ResponseLoggingPostFilter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/SpringCloudAPIGateway/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/SpringCloudAPIGateway/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/SpringCloudAPIGateway/src/main/resources/bootstrap.properties" beforeDir="false" afterPath="$PROJECT_DIR$/SpringCloudAPIGateway/src/main/resources/bootstrap.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/SpringCloudConfigServer/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/SpringCloudConfigServer/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/SpringCloudConfigServer/.idea/encodings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/OrderService/.idea/encodings.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/SpringCloudConfigServer/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/SpringCloudConfigServer/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/SpringCloudConfigServer/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/SpringCloudConfigServer/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/SpringCloudConfigServer/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/SpringCloudConfigServer/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/SpringCloudConfigServer/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/SpringCloudConfigServer/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/SpringCloudConfigServer/src/main/java/org/example/SpringCloudConfigServerApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/SpringCloudConfigServer/src/main/java/org/example/SpringCloudConfigServerApplication.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/SpringCloudConfigServer/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/SpringCloudConfigServer/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/SpringCloudConfigServer/src/main/resources/configuration/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/SpringCloudConfigServer/src/main/resources/configuration/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/SpringCloudConfigServer/src/main/resources/configuration/eureka-discovery-ms.properties" beforeDir="false" afterPath="$PROJECT_DIR$/SpringCloudConfigServer/src/main/resources/configuration/eureka-discovery-ms.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/SpringCloudConfigServer/src/main/resources/configuration/order-ms.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/SpringCloudConfigServer/src/main/resources/configuration/springcloud-api-gw.properties" beforeDir="false" afterPath="$PROJECT_DIR$/SpringCloudConfigServer/src/main/resources/configuration/springcloud-api-gw.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/SpringCloudConfigServer/src/main/resources/configuration/user-ms.properties" beforeDir="false" afterPath="$PROJECT_DIR$/SpringCloudConfigServer/src/main/resources/configuration/user-ms.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/UserMicroservice/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/UserService/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/UserMicroservice/.idea/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/UserService/.idea/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/UserMicroservice/.idea/encodings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/SpringCloudConfigServer/.idea/encodings.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/UserMicroservice/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/UserService/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/UserMicroservice/.idea/uiDesigner.xml" beforeDir="false" afterPath="$PROJECT_DIR$/UserService/.idea/uiDesigner.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/UserMicroservice/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/UserService/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/UserMicroservice/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/UserMicroservice/src/main/java/org/example/UserApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/UserService/src/main/java/org/example/UserApplication.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/UserMicroservice/src/main/java/org/example/annotation/ValidateRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/UserService/src/main/java/org/example/annotation/ValidateRequest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/UserMicroservice/src/main/java/org/example/aspect/RequestValidationAspect.java" beforeDir="false" afterPath="$PROJECT_DIR$/UserService/src/main/java/org/example/aspect/RequestValidationAspect.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/UserMicroservice/src/main/java/org/example/config/BeanConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/UserService/src/main/java/org/example/config/BeanConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/UserMicroservice/src/main/java/org/example/config/HibernateConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/UserService/src/main/java/org/example/config/HibernateConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/UserMicroservice/src/main/java/org/example/config/SecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/UserService/src/main/java/org/example/config/SecurityConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/UserMicroservice/src/main/java/org/example/controller/AuthController.java" beforeDir="false" afterPath="$PROJECT_DIR$/UserService/src/main/java/org/example/controller/AuthController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/UserMicroservice/src/main/java/org/example/controller/UserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/UserService/src/main/java/org/example/controller/UserController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/UserMicroservice/src/main/java/org/example/dto/AuthorityDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/UserService/src/main/java/org/example/dto/AuthorityDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/UserMicroservice/src/main/java/org/example/dto/ErrorResponseDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/UserService/src/main/java/org/example/dto/ErrorResponseDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/UserMicroservice/src/main/java/org/example/dto/SuccessResponseDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/UserService/src/main/java/org/example/dto/SuccessResponseDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/UserMicroservice/src/main/java/org/example/dto/UserDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/UserService/src/main/java/org/example/dto/UserDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/UserMicroservice/src/main/java/org/example/exception/BadRequestException.java" beforeDir="false" afterPath="$PROJECT_DIR$/ProductService/src/main/java/org/example/exception/BadRequestException.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/UserMicroservice/src/main/java/org/example/exception/GlobalExceptionHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/UserService/src/main/java/org/example/exception/GlobalExceptionHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/UserMicroservice/src/main/java/org/example/exception/InternalServerErrorException.java" beforeDir="false" afterPath="$PROJECT_DIR$/UserService/src/main/java/org/example/exception/InternalServerErrorException.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/UserMicroservice/src/main/java/org/example/exception/InvalidTokenException.java" beforeDir="false" afterPath="$PROJECT_DIR$/ProductService/src/main/java/org/example/exception/InvalidTokenException.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/UserMicroservice/src/main/java/org/example/exception/InvalidUsernameOrPasswordException.java" beforeDir="false" afterPath="$PROJECT_DIR$/UserService/src/main/java/org/example/exception/InvalidUsernameOrPasswordException.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/UserMicroservice/src/main/java/org/example/exception/ResourceNotFoundException.java" beforeDir="false" afterPath="$PROJECT_DIR$/UserService/src/main/java/org/example/exception/ResourceNotFoundException.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/UserMicroservice/src/main/java/org/example/model/UtbAuthority.java" beforeDir="false" afterPath="$PROJECT_DIR$/UserService/src/main/java/org/example/model/UtbAuthority.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/UserMicroservice/src/main/java/org/example/model/UtbPermission.java" beforeDir="false" afterPath="$PROJECT_DIR$/UserService/src/main/java/org/example/model/UtbPermission.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/UserMicroservice/src/main/java/org/example/model/UtbRole.java" beforeDir="false" afterPath="$PROJECT_DIR$/UserService/src/main/java/org/example/model/UtbRole.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/UserMicroservice/src/main/java/org/example/model/UtbUser.java" beforeDir="false" afterPath="$PROJECT_DIR$/UserService/src/main/java/org/example/model/UtbUser.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/UserMicroservice/src/main/java/org/example/security/CustomAuthenticationProvider.java" beforeDir="false" afterPath="$PROJECT_DIR$/UserService/src/main/java/org/example/security/CustomAuthenticationProvider.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/UserMicroservice/src/main/java/org/example/security/CustomUserDetailsService.java" beforeDir="false" afterPath="$PROJECT_DIR$/UserService/src/main/java/org/example/security/CustomUserDetailsService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/UserMicroservice/src/main/java/org/example/security/securityFilter/CustomUsernamePasswordAuthenticationFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/UserService/src/main/java/org/example/security/securityFilter/CustomUsernamePasswordAuthenticationFilter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/UserMicroservice/src/main/java/org/example/security/securityFilter/JWTTokenGenerationFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/UserService/src/main/java/org/example/security/securityFilter/JWTTokenGenerationFilter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/UserMicroservice/src/main/java/org/example/security/securityFilter/JWTTokenValidationFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/UserService/src/main/java/org/example/security/securityFilter/JWTTokenValidationFilter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/UserMicroservice/src/main/java/org/example/service/AuthorityServices.java" beforeDir="false" afterPath="$PROJECT_DIR$/UserService/src/main/java/org/example/service/AuthorityServices.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/UserMicroservice/src/main/java/org/example/service/PermissionServices.java" beforeDir="false" afterPath="$PROJECT_DIR$/UserService/src/main/java/org/example/service/PermissionServices.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/UserMicroservice/src/main/java/org/example/service/RoleServices.java" beforeDir="false" afterPath="$PROJECT_DIR$/UserService/src/main/java/org/example/service/RoleServices.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/UserMicroservice/src/main/java/org/example/service/UserServices.java" beforeDir="false" afterPath="$PROJECT_DIR$/UserService/src/main/java/org/example/service/UserServices.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/UserMicroservice/src/main/java/org/example/utility/DTOMapperUtil.java" beforeDir="false" afterPath="$PROJECT_DIR$/UserService/src/main/java/org/example/utility/DTOMapperUtil.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/UserMicroservice/src/main/java/org/example/utility/ResponseUtil.java" beforeDir="false" afterPath="$PROJECT_DIR$/UserService/src/main/java/org/example/utility/ResponseUtil.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/UserMicroservice/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/UserService/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project1/UserMicroservice/src/main/resources/bootstrap.properties" beforeDir="false" afterPath="$PROJECT_DIR$/UserService/src/main/resources/bootstrap.properties" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="MavenImportPreferences">
+    <option name="generalSettings">
+      <MavenGeneralSettings>
+        <option name="useMavenConfig" value="true" />
+      </MavenGeneralSettings>
+    </option>
+  </component>
+  <component name="ProjectId" id="2iuwQSV4WSMb7iQGzUqw71BYBSN" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "last_opened_file_path": "C:/hibernate"
+  }
+}]]></component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\SpringCloud\Project1" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Application.ConfigServerApplication">
+    <list>
+      <item itemvalue="Application.ConfigServerApplication" />
+      <item itemvalue="Application.SpringCloudAPIGateway" />
+      <item itemvalue="Application.UserService2" />
+      <item itemvalue="Application.ProductService1" />
+      <item itemvalue="Application.ProductService2" />
+      <item itemvalue="Application.OrderService1" />
+      <item itemvalue="Application.OrderService2" />
+      <item itemvalue="Application.EurekaDiscoverService1" />
+      <item itemvalue="Application.EurekaDiscoverService2" />
+      <item itemvalue="Application.EurekaDiscoverService3" />
+    </list>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="ec4e196e-1b9c-43fa-969f-cdbe0759c388" name="Changes" comment="" />
+      <created>1720353753629</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1720353753629</updated>
+    </task>
+    <servers />
+  </component>
+</project>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="OrderService" />
+        <module name="EurekaDiscoveryService" />
+        <module name="SpringCloud" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="GeneralUtils" target="1.8" />
+      <module name="ProductService" target="1.8" />
+      <module name="SpringCloudAPIGateway" target="1.8" />
+      <module name="SpringCloudConfigServer" target="1.8" />
+      <module name="SpringCloudPractice" target="17" />
+      <module name="UserMicroservice" target="17" />
+      <module name="UserService" target="1.8" />
+    </bytecodeTargetLevel>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="EurekaDiscoveryService" options="-parameters" />
+      <module name="OrderService" options="-parameters -sourcepath C:\SpringCloud\OrderService\src\main\java" />
+      <module name="SpringCloud" options="-parameters -sourcepath C:\SpringCloud\src\main\java" />
+      <module name="UserMicroservice" options="-parameters -sourcepath C:\SpringCloud\src\main\java" />
+    </option>
+  </component>
+</project>
