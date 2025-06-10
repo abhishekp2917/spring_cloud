@@ -1,0 +1,357 @@
+*   What is Spring Cloud API Gateway ?
+
+>>  Spring Cloud Gateway is a reactive, non-blocking API gateway built on top of Spring WebFlux. 
+
+    It provides a way to route requests to different microservices and apply filters (pre/post processing) to incoming 
+    HTTP requests.
+
+    It acts as a front door to your microservices, handling:
+
+        - Routing
+        - Load balancing
+        - Authentication
+        - Rate limiting
+        - Caching
+        - Logging & monitoring
+
+________________________________________________________________________________________________________________________
+
+*   How to setup Spring Cloud API Gateway ?
+
+>>  (1) Create a Spring Boot Project (API Gateway) with below dependencies:
+
+        (a) Spring Cloud Gateway: 
+            
+            - Provides the core functionality to route requests to microservices using a reactive API gateway.
+
+        (b) Spring WebFlux: 
+        
+            - Reactive web framework used internally by Spring Cloud Gateway (already included via gateway starter).
+
+        (c) Eureka Discovery Client: 
+        
+            - Enables service discovery by registering the API gateway with Eureka and discovering other services.
+
+        ```
+            <!-- Add Spring Cloud BOM -->
+            <dependencyManagement>
+                <dependencies>
+                    <dependency>
+                    <groupId>org.springframework.cloud</groupId>
+                    <artifactId>spring-cloud-dependencies</artifactId>
+                    <version>2023.0.0</version> <!-- or latest stable -->
+                    <type>pom</type>
+                    <scope>import</scope>
+                    </dependency>
+                </dependencies>
+            </dependencyManagement>
+
+            <dependencies>
+                <!-- Spring Cloud Gateway -->
+                <dependency>
+                    <groupId>org.springframework.cloud</groupId>
+                    <artifactId>spring-cloud-starter-gateway</artifactId>
+                </dependency>
+
+                <!-- Not needed to include webflux manually as it is implicitly included in spring-cloud-starter-gateway -->
+                <dependency>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-webflux</artifactId>
+                </dependency>
+
+                <!-- Eureka Discovery Client -->
+                <dependency>
+                    <groupId>org.springframework.cloud</groupId>
+                    <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+                </dependency>
+            </dependencies>
+        ```
+    
+    (2) Add @EnableDiscoveryClient and Main Class
+
+        ``` 
+            @SpringBootApplication
+            @EnableDiscoveryClient
+            public class ApiGatewayApplication {
+                public static void main(String[] args) {
+                    SpringApplication.run(ApiGatewayApplication.class, args);
+                }
+            }
+        ```
+
+    (3) 
+
+        ```
+            # Server Port
+            server.port=8080
+
+            # Application Name (used in Eureka)
+            spring.application.name=api-gateway
+
+            # Enable Discovery Client (Eureka)
+            eureka.client.service-url.defaultZone=http://localhost:8761/eureka/
+            eureka.client.register-with-eureka=true
+            eureka.client.fetch-registry=true
+
+            # Enable Discovery Locator (for dynamic routing using Eureka service names)
+            spring.cloud.gateway.discovery.locator.enabled=true
+            spring.cloud.gateway.discovery.locator.lower-case-service-id=true
+        ```
+
+    (4) Configure routing:
+
+        - Route ID: "user-service" – A unique identifier for this route.
+
+        - Path Predicate: "/users/**" – Only routes requests that start with /users/.
+
+        - URI: "lb://USER-SERVICE" – Uses Eureka (or load balancer) to forward the request to a service registered as USER-SERVICE.
+
+        ```
+            @Configuration
+            public class GatewayRoutesConfig {
+
+                @Bean
+                public RouteLocator customRouteLocator(RouteLocatorBuilder builder) {
+                    return builder.routes()
+                    
+                        // Route for User Service
+                        .route("user-service",
+                            r -> r.path("/users/**")
+                            .uri("lb://USER-SERVICE"))
+
+                        // Route for Order Service
+                        .route("order-service", 
+                            r -> r.path("/orders/**")
+                            .uri("lb://ORDER-SERVICE"))
+
+                        .build();
+                }
+            }
+
+        ``` 
+        
+    (5) Register Other Microservices with Eureka Server:
+
+        - Make sure all your backend services (e.g. user-service, order-service) have Eureka URL configured.
+
+    (6) Run the Apps:
+
+        - Start in order:
+
+            - Eureka Server (http://localhost:8761)
+            - User/Order Services
+            - API Gateway (http://localhost:8080)
+
+________________________________________________________________________________________________________________________
+
+*   What are Predicates in Spring Cloud API Gateway ?
+
+>>  Predicates are conditions used to determine whether an incoming HTTP request should be routed through a specific route.
+
+    Common Predicate types:
+
+        - Path	        : Match the request path (/users/**, /api/v1/**)
+        - Method	    : Match HTTP method (GET, POST, etc.)
+        - Header	    : Match based on request headers
+        - Query	        : Match based on query parameters
+        - Cookie	    : Match based on cookie value
+        - RemoteAddr    : Match based on IP address
+        - Host	        : Match based on the request's hostname
+
+    Example:
+
+       -  Routes request to SECURE-SERVICE only if:
+
+            - Path starts with /api/secure/
+            - Method is GET
+            - Header X-Auth is true
+        
+        ```
+            .route("secure-api", r -> r
+                .path("/api/secure/**")
+                .and()
+                .method("GET")
+                .and()
+                .header("X-Auth", "true")
+                .uri("lb://SECURE-SERVICE"))
+        ```
+
+________________________________________________________________________________________________________________________
+
+*   How to setup Load Balancer in Spring Cloud API Gateway ?
+
+>>  In Spring Cloud API Gateway, load balancing is achieved using Netflix Eureka for service discovery. 
+    
+    The Gateway acts as a reverse proxy and routes requests to the appropriate backend service instance 
+    based on configured rules.
+
+    How it works:
+
+        - Register all microservices, including the API Gateway, with Eureka Server.
+
+        - In the Gateway’s routing configuration, use lb://<SERVICE-NAME> as the URI.
+
+        - lb:// is a logical URI scheme that tells Spring Cloud Gateway to use the LoadBalancerClient to discover and 
+          route requests across available service instances.
+
+        - Load balancing is handled automatically using client-side round-robin by default.
+
+________________________________________________________________________________________________________________________
+
+*   How to configure custom Load Balancing logic ?
+
+>>  To configure custom load balancing logic in Spring Cloud Gateway, implement a custom 
+    ReactorServiceInstanceLoadBalancer bean and define how service instances are chosen.
+    
+    This overrides the default round-robin logic. The custom logic is applied automatically when using lb://<service-name> 
+    URIs in the Gateway route definitions.
+
+________________________________________________________________________________________________________________________
+
+*   What are Gateway Filters in Spring Cloud API Gateway ?
+
+>>  Gateway Filters in Spring Cloud Gateway are powerful processing components that allow you to intercept, transform, 
+    or process HTTP requests and responses at various stages in the routing lifecycle.
+
+    They provide a way to implement cross-cutting concerns such as:
+
+        - Authentication and Authorization
+        - Logging
+        - Rate limiting
+        - Header manipulation
+        - Custom request/response transformations
+    
+    There are two types of Gateway Filters:
+
+        (a) Global Filters
+        (b) Route-Specific Filters
+
+________________________________________________________________________________________________________________________
+
+*   Explain Global Filters.
+
+>>  Global Filters allow you to intercept and manipulate both incoming requests (pre-filtering) and outgoing responses 
+    (post-filtering) globally, across the entire gateway application.
+
+    They are ideal for implementing cross-cutting concerns such as:
+
+        - Logging
+        - Authentication
+
+    Example: 
+
+        ```
+            @Component
+            public class CustomGlobalFilter implements GlobalFilter, Ordered {
+
+                @Override
+                public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+                    // PRE Filter logic
+                    System.out.println(">>> Pre Filter: Request ID = " + exchange.getRequest().getId());
+
+                    return chain.filter(exchange).then(
+                        Mono.fromRunnable(() -> {
+                            // POST Filter logic
+                            System.out.println("<<< Post Filter: Response Status = " + exchange.getResponse().getStatusCode());
+                        })
+                    );
+                }
+
+                @Override
+                public int getOrder() {
+                    return -1; // High precedence (lower number = higher priority)
+                }
+            }
+        ```
+
+________________________________________________________________________________________________________________________
+
+*   Explain various types of Global Filters.
+
+>>  There are two type of Global Filters: 
+        
+        (a) Pre Filters: 
+        
+            - Code that executes before the request is routed to the backend service.
+
+            - Code written before 'chain.filter(exchange)' will act as a pre-filter.
+
+        (b) Post Filters: 
+            
+            - Code that executes after the backend service responds, just before the response is sent back to the client.
+
+            - Code written inside 'chain.filter(exchange).then(...)' will act as a post-filter.
+
+    Example:
+
+        ```
+            @Component
+            public class PrePostLoggingFilter implements GlobalFilter, Ordered {
+
+                @Override
+                public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+
+                    // 🔹 PRE FILTER: Runs before the request is routed to backend service
+                    System.out.println(">>> PRE Filter: Request path = " + exchange.getRequest().getPath());
+
+                    // Continue processing and attach POST FILTER logic after the route is complete
+                    return chain.filter(exchange).then(
+                        Mono.fromRunnable(() -> {
+                            // 🔸 POST FILTER: Runs after backend response is returned
+                            System.out.println("<<< POST Filter: Response status = " + exchange.getResponse().getStatusCode());
+                        })
+                    );
+                }
+
+                @Override
+                public int getOrder() {
+                    return 0; // Order of filter execution (lower = higher priority)
+                }
+            }
+        ```
+
+________________________________________________________________________________________________________________________
+
+*   How to configure Custom Route Specific filter ?
+
+>>  A Route-Specific Filter is a filter that applies only to a specific route, not globally. You attach it directly in 
+    the route.
+
+    (1) Create a Custom Gateway Filter:
+
+        ```
+            @Component
+            public class CustomHeaderFilter implements GatewayFilter {
+
+                @Override
+                public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+                    System.out.println(">> Custom Route Filter: Adding custom header");
+                    exchange.getRequest().mutate()
+                            .header("X-Custom-Request", "GatewayRequest")
+                            .build();
+                    return chain.filter(exchange);
+                }
+            }
+        ```
+
+    (2) Apply it to a specific Route while defining RouteLocator bean:
+
+        ```
+            @Configuration
+            public class GatewayRoutesConfig {
+
+                @Autowired
+                private CustomHeaderFilter customHeaderFilter;
+
+                @Bean
+                public RouteLocator customRouteLocator(RouteLocatorBuilder builder) {
+                    return builder.routes()
+                            .route("product_service", r -> r.path("/products/**")
+                                    .filters(f -> f.filter(customHeaderFilter))
+                                    .uri("lb://PRODUCT-SERVICE"))
+                            .build();
+                }
+            }
+        ```
+
+________________________________________________________________________________________________________________________
