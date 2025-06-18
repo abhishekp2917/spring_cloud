@@ -1,0 +1,498 @@
+*   What is Resilience4j ?
+
+>>  Resilience4j is a modular, lightweight, fault‑tolerance library for Java applications 
+    (built for Java 8+ and Java 17 with version 2.x). 
+    
+    Unlike monolithic frameworks, you can pick only the patterns you need—such as Circuit Breaker, Rate Limiter, 
+    Retry, Bulkhead, Time Limiter, and Cache—and apply them as method decorators or annotations 
+
+    Core Features:
+
+        (1) Circuit Breaker:
+
+            - Monitors failures and opens to short‑circuit calls once a failure threshold is exceeded.
+
+        (2) Retry:
+
+            - Automatically re-invokes failed calls with configurable maximum attempts, wait durations, and backoff strategies.
+
+        (3) Rate Limiter:
+
+            - Controls request throughput by limiting the number of allowed calls per time period.
+
+        (4) Bulkhead:
+
+            - Prevents resource exhaustion by limiting concurrent executions, either via semaphores or thread‑pool isolation.
+
+        (5) Time Limiter:
+
+            - Imposes timeouts on method calls, forcing cancellations or fallback logic when timeouts happen.
+
+        (6) Cache:
+
+            - Optionally caches results of function calls to reduce redundant execution.
+
+________________________________________________________________________________________________________________________
+
+*   Explain Resilience4j Circuit Breaker with example.
+
+>>  A Circuit Breaker monitors the number of failures in requests from one service to another service.
+
+    It could be in three states:
+
+        (a) CLOSED:    All requests are allowed. Failures are recorded.
+
+        (b) OPEN:      All requests are blocked immediately for a specified duration (cool-down period).
+
+        (c) HALF_OPEN: A limited number of trial requests are allowed to check if the service has recovered.
+
+    How to Setup:
+
+        (1) Add Maven Dependencies:
+
+            ```
+                <dependency>
+                    <groupId>io.github.resilience4j</groupId>
+                    <artifactId>resilience4j-spring-boot2</artifactId>
+                    <version>1.7.1</version>
+                </dependency>
+
+                <!-- Required for @CircuitBreaker -->
+                <dependency>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-aop</artifactId> 
+                </dependency>
+            ```
+
+        (2) application.properties:
+
+            ```
+                # Enable health indicator for circuit breaker (optional)
+                resilience4j.circuitbreaker.instances.myCircuitBreaker.registerHealthIndicator=true
+
+                # Circuit Breaker will evaluate the last 5 calls
+                resilience4j.circuitbreaker.instances.paymentServiceCB.slidingWindowSize=5
+
+                # Circuit Breaker will open if 50% of the calls in the window fail
+                resilience4j.circuitbreaker.instances.paymentServiceCB.failureRateThreshold=50
+
+                # Time Circuit Breaker remains open before trying half-open trial calls (5 seconds)
+                resilience4j.circuitbreaker.instances.paymentServiceCB.waitDurationInOpenState=5s
+
+                # Number of trial calls allowed in half-open state before moving to open/closed
+                resilience4j.circuitbreaker.instances.paymentServiceCB.permittedNumberOfCallsInHalfOpenState=2
+
+                # Use count-based sliding window (other option is TIME_BASED)
+                resilience4j.circuitbreaker.instances.paymentServiceCB.slidingWindowType=COUNT_BASED
+            ```
+
+        (3) Service Implementation:
+
+            ```
+                @Service
+                public class PaymentServiceClient {
+
+                    private final RestTemplate restTemplate = new RestTemplate();
+
+                    // This method calls the external Payment Service and is prone to failure, so we protect it with a Circuit Breaker.
+                    // @CircuitBreaker annotation enables Resilience4j circuit breaking.
+                    // 'name' refers to the configuration defined in application.properties.
+                    // 'fallbackMethod' is called when the circuit is OPEN or an exception is thrown.
+                    @CircuitBreaker(name = "paymentServiceCB", fallbackMethod = "fallbackPayment")
+                    public String callPaymentService() {
+
+                        // Simulating an external HTTP call to the payment service.
+                        String url = "http://localhost:8081/payment/process";
+
+                        // If this fails frequently, the circuit breaker will open.
+                        return restTemplate.getForObject(url, String.class);
+                    }
+
+                    // Fallback method invoked when Circuit is OPEN or an exception occurs during the actual call. 
+                    // The method signature must match the original method + one extra Throwable parameter.
+                    public String fallbackPayment(Throwable ex) {
+
+                        // This response is returned instead of making the actual external call.
+                        return "Fallback: Payment Service is currently unavailable.";
+                    }
+                }
+
+            ```
+
+    How It Works:
+        
+        - If more than 50% of the last 5 calls fail, the circuit breaker transitions to OPEN.
+
+        - In OPEN, all calls are immediately failed without executing the method.
+
+        - After 5 seconds, it moves to HALF_OPEN, allowing 2 trial calls.
+
+        - If the trial calls succeed, it moves back to CLOSED; otherwise, back to OPEN.
+
+________________________________________________________________________________________________________________________
+
+*   Explain Resilience4j Retry with example.
+
+>>  Resilience4j Retry is a fault-tolerance pattern that automatically retries a failed operation a specified number of 
+    times before giving up or moving to a fallback.
+
+    It is useful when transient faults like network issues, timeouts, or rate limits may resolve upon retrying.
+
+    How to Setup:
+
+        (1) Add Maven Dependencies:
+
+            ```
+                <dependency>
+                    <groupId>io.github.resilience4j</groupId>
+                    <artifactId>resilience4j-spring-boot2</artifactId>
+                    <version>1.7.1</version>
+                </dependency>
+
+                <dependency>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-aop</artifactId> 
+                </dependency>
+            ```
+
+        (2) application.properties:
+
+            ```
+                # Specifies the total number of attempts including the initial call.
+                resilience4j.retry.instances.productServiceRetry.maxAttempts=3   
+
+                # Defines the wait time between each retry attempt.
+                resilience4j.retry.instances.productServiceRetry.waitDuration=1s  
+
+                # Retries are triggered only when a RuntimeException is thrown.
+                resilience4j.retry.instances.productServiceRetry.retryExceptions=java.lang.RuntimeException     
+
+                # Retries are skipped if an IllegalArgumentException is thrown.
+                resilience4j.retry.instances.productServiceRetry.ignoreExceptions=java.lang.IllegalArgumentException   
+            ```
+        
+        (3) Create ProductService with Retry:
+
+            ```
+                @Service
+                public class ProductService {
+
+                    
+                    // Simulates a method that may fail intermittently
+                    // Retries will be triggered automatically by Resilience4j
+                    @Retry(name = "productServiceRetry", fallbackMethod = "fallbackGetProduct")
+                    public String getProduct() {
+                        if (Math.random() < 0.7) {
+                            System.out.println("Simulated failure...");
+                            throw new RuntimeException("Temporary product service failure.");
+                        }
+                        return "Product details fetched successfully!";
+                    }
+
+                    
+                    // Fallback method called if all retries fail which must match original method signature + Throwable parameter.
+                    public String fallbackGetProduct(Throwable t) {
+                        return "Fallback: Unable to fetch product details at the moment.";
+                    }
+                }
+            ```
+
+    How It Works:
+        
+        - When you annotate a method with @Retry, Resilience4j retries the method on specified exceptions.
+
+        - If specified, it waits between retries (optional).
+            
+        - Similarly, it calls a fallback method if all retries fail (optional).
+
+________________________________________________________________________________________________________________________
+
+*   Explain Resilience4j Rate Limiter with example.
+
+>>  Resilience4j Rate Limiter limits the rate at which a method can be invoked to prevent overloading downstream services 
+    or resources.
+
+    How to Setup:
+        
+        (1) Add Maven Dependencies:
+            
+            ```
+                <dependency>
+                    <groupId>io.github.resilience4j</groupId>
+                    <artifactId>resilience4j-spring-boot2</artifactId>
+                    <version>1.7.1</version>
+                </dependency>
+
+                <dependency>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-aop</artifactId>
+                </dependency>
+            ```
+
+        (2) application.properties:
+
+            ```
+                # Maximum number of calls allowed in a refresh period.
+                resilience4j.ratelimiter.instances.productRateLimiter.limitForPeriod=5
+
+                # Duration of the refresh period after which the limit is reset (in seconds).
+                resilience4j.ratelimiter.instances.productRateLimiter.limitRefreshPeriod=10s
+
+                # Maximum time a caller can wait for a permit before getting rejected.
+                resilience4j.ratelimiter.instances.productRateLimiter.timeoutDuration=500ms
+            ```
+
+        (3) Create ProductService with Rate Limiter:
+
+            ```      
+                @Service
+                public class ProductService {
+
+                    // This method is rate-limited to avoid calling it too frequently
+                    // If the rate limit is exceeded, fallback method will be triggered
+                    @RateLimiter(name = "productRateLimiter", fallbackMethod = "fallbackProduct")
+                    public String getProduct() {
+                        System.out.println("Product service called at: " + System.currentTimeMillis());
+                        return "Product details returned successfully!";
+                    }
+
+                    // Fallback method when rate limit is exceeded
+                    public String fallbackProduct(Throwable t) {
+                        return "Rate limit exceeded. Please try again later.";
+                    }
+                }
+            ```
+
+    How It Works:
+
+        - When you annotate a method with @RateLimiter, Resilience4j limits how frequently that method can be called.
+
+        - It uses a token-bucket-based algorithm to allow only a fixed number of calls in a defined time window.
+
+        - If the number of calls exceeds the limit, Resilience4j waits up to the timeoutDuration before throwing a 
+          RequestNotPermitted exception and invoking the fallback (if defined).
+
+________________________________________________________________________________________________________________________
+
+*   Explain Resilience4j Bulkhead with example.
+
+>>  Resilience4j Bulkhead is a fault-tolerance pattern that limits the number of concurrent calls to a protected method 
+    to prevent system overload.
+
+    It is useful when you want to isolate failures in one part of the system from affecting others and ensure that a 
+    single overused service doesn't exhaust all system resources.
+
+    How to Setup:
+
+        (1) Add Maven Dependencies:
+
+            ```
+                <dependency>
+                    <groupId>io.github.resilience4j</groupId>
+                    <artifactId>resilience4j-spring-boot2</artifactId>
+                    <version>1.7.1</version>
+                </dependency>
+
+                <dependency>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-aop</artifactId>
+                </dependency>
+            ```
+
+        (2) application.properties:
+
+            ```
+                # Maximum number of concurrent calls allowed
+                resilience4j.bulkhead.instances.productBulkhead.maxConcurrentCalls=2
+
+                # Maximum number of calls that can be queued while waiting for a thread
+                resilience4j.bulkhead.instances.productBulkhead.maxWaitDuration=0
+            ```
+
+        (3) Create ProductService with Bulkhead:
+
+            ```
+                @Service
+                public class ProductService {
+
+                    // This method allows only 2 concurrent calls at a time
+                    // If more than 2 threads invoke this concurrently, fallback is called
+                    @Bulkhead(name = "productBulkhead", type = Bulkhead.Type.THREADPOOL, fallbackMethod = "fallbackGetProduct")
+                    public String getProduct() {
+                        try {
+                            System.out.println("Processing product at: " + System.currentTimeMillis());
+                            Thread.sleep(5000); // Simulate processing delay
+                        } catch (InterruptedException e) {
+                            Thread.currentThread().interrupt();
+                        }
+                        return "Product processed successfully!";
+                    }
+
+                    // Fallback method called when Bulkhead limit is exceeded
+                    public String fallbackGetProduct(Throwable t) {
+                        return "Too many concurrent requests. Please try again later.";
+                    }
+                }
+            ```
+
+    How It Works:
+        
+        - When you annotate a method with @Bulkhead, Resilience4j restricts how many concurrent threads can enter that 
+          method at a time.
+
+        - If the number of concurrent calls exceeds the maxConcurrentCalls, additional requests are immediately rejected.
+
+        - If fallbackMethod is defined, it gets invoked upon rejection; otherwise, an exception is thrown.
+
+________________________________________________________________________________________________________________________
+
+*   Explain Resilience4j Time Limiter with example.
+
+>>  Resilience4j Time Limiter is a fault-tolerance pattern that sets an upper time limit for executing a method and 
+    interrupts the call if it exceeds the limit.
+
+    @TimeLimiter only works with methods that return CompletableFuture (or reactive types) — it does not work with 
+    synchronous methods.
+
+    How to Setup:
+        
+        (1) Add Maven Dependencies:
+
+            ```
+                <dependency>
+                    <groupId>io.github.resilience4j</groupId>
+                    <artifactId>resilience4j-spring-boot2</artifactId>
+                    <version>1.7.1</version>
+                </dependency>
+
+                <dependency>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-aop</artifactId>
+                </dependency>
+            ```
+
+        (2) application.properties:
+
+            ```
+                # Maximum duration allowed for the operation to complete
+                resilience4j.timelimiter.instances.productTimeLimiter.timeoutDuration=2s
+
+                # Whether to cancel (interrupt) the running thread after timeout
+                resilience4j.timelimiter.instances.productTimeLimiter.cancelRunningFuture=true
+            ```
+
+        (3) Create ProductService with Time Limiter:
+
+            ```
+                @Service
+                public class ProductService {
+
+                    // This method is limited to 2 seconds of execution time
+                    // If it takes longer, it will be interrupted and fallback will be called
+                    @TimeLimiter(name = "productTimeLimiter", fallbackMethod = "fallbackGetProduct")
+                    public CompletableFuture<String> getProduct() {
+
+                        return CompletableFuture.supplyAsync(() -> {
+                            try {
+                                System.out.println("Simulating delay...");
+                                Thread.sleep(5000); // Simulated long-running task
+                                return "Product info retrieved successfully!";
+                            } catch (InterruptedException e) {
+                                Thread.currentThread().interrupt();
+                                throw new RuntimeException("Interrupted while processing.");
+                            }
+                        });
+                    }
+
+                    // Fallback method for timeout failures
+                    public CompletableFuture<String> fallbackGetProduct(Throwable t) {
+                        return CompletableFuture.completedFuture("Request timed out. Please try again later.");
+                    }
+                }
+            ```
+
+    How It Works:
+
+        - When you annotate a method with @TimeLimiter, Resilience4j runs the method asynchronously and enforces a timeout.
+
+        - If the method doesn't complete within the configured time, it gets interrupted and Resilience4j throws a TimeoutException.
+
+        - If a fallbackMethod is defined, it is executed when timeout occurs; otherwise, an exception is propagated to the caller.
+
+________________________________________________________________________________________________________________________
+
+*   Explain Resilience4j Cache with example.
+
+>>  Resilience4j Cache is a performance optimization pattern that caches the results of method calls to avoid repeated 
+    computations or remote calls for the same inputs.
+
+    It is useful when the output for a given input doesn't change frequently, helping to reduce load on downstream 
+    systems and improve response time.
+
+    How to Setup:
+        
+        (1) Add Maven Dependencies:
+
+            ```
+                <dependency>
+                    <groupId>io.github.resilience4j</groupId>
+                    <artifactId>resilience4j-cache</artifactId>
+                    <version>1.7.1</version>
+                </dependency>
+
+                <!-- Resilience4j Cache requires a caching library like Caffeine to store cache entries. -->
+                <dependency>
+                    <groupId>com.github.ben-manes.caffeine</groupId>
+                    <artifactId>caffeine</artifactId>
+                    <version>2.8.8</version> 
+                </dependency>
+            ```
+
+        (2) Create ProductService with Resilience4j Cache:
+
+            - Configuration for caching is done in code, not via application.properties.
+            
+            ```
+                @Service
+                public class ProductService {
+
+                    // Initialize Caffeine cache with expiry
+                    private final com.github.benmanes.caffeine.cache.Cache<String, String> cache =
+                            Caffeine.newBuilder()
+                                    .expireAfterWrite(10, TimeUnit.SECONDS)
+                                    .maximumSize(100)
+                                    .build();
+
+                    // Decorate method using Resilience4j Cache
+                    private final Function<String, String> cachedProductFunction;
+
+                    public ProductService() {
+                        this.cachedProductFunction = Cache.decorateCache(cache, this::getProductInternal);
+                    }
+
+                    // Public method that uses cached result
+                    public String getProduct(String productId) {
+                        return cachedProductFunction.apply(productId);
+                    }
+
+                    // Actual method that simulates fetching from external service or DB
+                    private String getProductInternal(String productId) {
+                        System.out.println("Fetching from DB/service for productId: " + productId);
+                        return "Product Info for " + productId;
+                    }
+                }
+            ```
+    
+    How It Works:
+        
+        - You decorate a method (like getProductInternal) with Resilience4j's Cache.decorateCache(...), using a Caffeine 
+          cache under the hood.
+
+        - On the first call with a given key, the real method is invoked and result is cached.
+
+        - On subsequent calls with the same key, the result is served from the cache as long as it hasn’t expired.
+
+        - This helps avoid redundant computations or remote service/database calls for the same input.
+
+________________________________________________________________________________________________________________________
+
