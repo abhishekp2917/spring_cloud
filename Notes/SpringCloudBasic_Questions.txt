@@ -232,6 +232,76 @@ ________________________________________________________________________________
     It helps distributed applications achieve synchronization, configuration management, naming, and group services — 
     all crucial for building fault-tolerant systems.
 
+    Example:
+    
+        Let say you have multiple RabbitMQ instances with one acting as a leader and others as followers.
+        
+        To coordinate between these RabbitMQ instances, we can use Zookeeper. It will do:
+
+            - Leader election
+            - Health checking
+            - Failover Mechanism
+
+        Step-by-Step Walkthrough:
+
+            (1) RabbitMQ Nodes Register with ZooKeeper:
+
+                - Each RabbitMQ node (RMQ-1, RMQ-2, RMQ-3) on startup connects to ZooKeeper.
+                
+                - Creates an ephemeral znode like:
+
+                    ```
+                        /rmq-cluster/nodes/rmq-1
+                        /rmq-cluster/nodes/rmq-2
+                        /rmq-cluster/nodes/rmq-3
+                    ```
+
+                - All nodes participate in leader election by creating a znode under:
+
+                    ```
+                        /rmq-cluster/election/node-0000001 (RMQ-1)
+                        /rmq-cluster/election/node-0000002 (RMQ-2)
+                        ...
+                    ```
+
+                - ZooKeeper picks the node with the smallest ID as the leader.
+
+            (2) Producers & Consumers Discover the Leader:
+
+                - Clients (producer/consumer services):
+
+                    - Watch the /rmq-cluster/leader znode in ZooKeeper.
+
+                    - Use that value (rmq-1) to connect to RabbitMQ Leader's IP.
+
+                    - They publish and consume via rmq-1.
+
+            (3) ZooKeeper Handles Heartbeats:
+
+                - RabbitMQ nodes maintain ZooKeeper sessions.
+
+                - Each node sends heartbeats by maintaining the session.
+
+                - If a node crashes or disconnects, its ephemeral znode disappears.
+
+            (4) Leader Fails — Failover Triggered:
+
+                - Let’s say rmq-1 (the current leader) crashes.
+
+                - ZooKeeper detects the missing "/rmq-cluster/nodes/rmq-1" and deletes "/rmq-cluster/election/node-0000001".
+
+                - Then it elects the next smallest ID node (e.g., rmq-2) as new leader and updates "/rmq-cluster/leader" as "rmq-2".
+
+                - Clients watching this znode are notified immediately.
+
+            (5) Clients Automatically Reroute:
+
+                - Producer/Consumer detect ZooKeeper leader change and reconnect to new leader node (rmq-2).
+
+                - They resume message sending/receiving.
+
+                - This requires zero manual intervention.
+
 ________________________________________________________________________________________________________________________
 
 *   Can Eureka Server be clustered ? 
