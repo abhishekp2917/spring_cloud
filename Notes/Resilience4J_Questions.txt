@@ -496,3 +496,550 @@ ________________________________________________________________________________
 
 ________________________________________________________________________________________________________________________
 
+*   What are the major modules and features provided by Resilience4j ?
+
+>>  Resilience4j is modular, so an application can selectively use only the resilience patterns it needs. The
+    core modules are CircuitBreaker (prevents repeated calls to an unhealthy downstream), Retry (re-executes
+    operations that fail transiently), RateLimiter (controls how many calls are allowed per period), Bulkhead
+    (limits concurrent executions to prevent resource exhaustion), TimeLimiter (bounds how long an async
+    operation is allowed to run), and Cache (avoids repeated execution by caching results). It also ships
+    additional integrations - Micrometer, Spring Boot 2/3, Spring Cloud CircuitBreaker, Reactor, RxJava, Feign,
+    and Kotlin - so you only compose the mechanisms a given downstream dependency actually needs.
+
+________________________________________________________________________________________________________________________
+
+*   What is the difference between Resilience4j and Spring Cloud CircuitBreaker ?
+
+>>  Resilience4j is the actual fault-tolerance implementation. Spring Cloud CircuitBreaker is an abstraction
+    layer providing a common API in front of different circuit-breaker implementations - the flow is
+    Application -> Spring Cloud CircuitBreaker -> Resilience4j -> CircuitBreaker. That abstraction makes the
+    application less tightly coupled to one specific circuit-breaker library, though Resilience4j can also be
+    used directly without Spring Cloud CircuitBreaker in the picture at all.
+
+________________________________________________________________________________________________________________________
+
+*   How does Resilience4j integrate with Spring Boot ?
+
+>>  Resilience4j provides Spring Boot starter modules that automatically configure its components and Spring AOP
+    aspects. For Spring Boot 3, the typical dependencies are resilience4j-spring-boot3,
+    spring-boot-starter-aop, and spring-boot-starter-actuator. The starter provides annotations
+    (@CircuitBreaker, @Retry, @RateLimiter, @Bulkhead, @TimeLimiter) implemented via Spring AOP - a call flows
+    Method -> Spring Proxy -> Resilience4j Aspect -> Actual Method - which is exactly why standard Spring AOP
+    concerns like proxying and self-invocation matter when using these annotations.
+
+________________________________________________________________________________________________________________________
+
+*   What are the major Resilience4j annotations ?
+
+>>  @CircuitBreaker, @Retry, @RateLimiter, @Bulkhead, and @TimeLimiter - each decorates a method with the
+    corresponding resilience behavior. For example,
+    @CircuitBreaker(name = "paymentService", fallbackMethod = "fallback") on a pay() method: the name
+    identifies which Resilience4j configuration instance applies, and fallbackMethod names the method to invoke
+    when the protected operation fails.
+
+________________________________________________________________________________________________________________________
+
+*   Why does Resilience4j use the name attribute in annotations ?
+
+>>  The name connects the annotated method to a specific, named Resilience4j configuration instance - e.g.
+    @CircuitBreaker(name = "paymentService") pairs with a
+    resilience4j.circuitbreaker.instances.paymentService block in configuration (slidingWindowSize,
+    failureRateThreshold, etc.). The same named configuration can be reused by multiple methods that all want
+    identical resilience behavior, rather than each method needing its own separately-defined settings.
+
+________________________________________________________________________________________________________________________
+
+*   How does the Resilience4j configuration hierarchy work ?
+
+>>  Resilience4j supports a shared base configuration plus instance-specific overrides - configs.default holds
+    common defaults, and each named instance (resilience4j.circuitbreaker.instances.paymentService) can
+    reference that default as its baseConfig and then override just the specific properties it needs (e.g.
+    waitDurationInOpenState: 10s), rather than repeating every setting for every instance. The same
+    default-plus-override pattern is supported for Retry, RateLimiter, Bulkhead, ThreadPoolBulkhead, and
+    TimeLimiter.
+
+________________________________________________________________________________________________________________________
+
+*   How can Resilience4j configuration be customized programmatically ?
+
+>>  Use a *ConfigCustomizer bean - e.g. a @Bean returning
+    CircuitBreakerConfigCustomizer.of("paymentService", builder -> builder.slidingWindowSize(100)) - to
+    programmatically adjust a specific named instance's configuration in code rather than only through static
+    application.yml properties. Equivalent customizers exist for CircuitBreaker, Retry, RateLimiter, Bulkhead,
+    ThreadPoolBulkhead, and TimeLimiter, useful whenever the configuration needs actual logic rather than a
+    fixed value.
+
+________________________________________________________________________________________________________________________
+
+*   How does Resilience4j's CircuitBreaker determine when to open ?
+
+>>  It records the outcome of calls inside a sliding window - either COUNT_BASED (considers the last N calls) or
+    TIME_BASED (considers calls occurring during the last N seconds). For example with slidingWindowSize = 10,
+    minimumNumberOfCalls = 10, and failureRateThreshold = 50%, once the minimum call count is reached and the
+    failure rate crosses 50%, the breaker transitions to OPEN. The sliding window is used purely to calculate
+    failure/slow-call rates - it doesn't limit concurrency at all (that's Bulkhead's job).
+
+________________________________________________________________________________________________________________________
+
+*   What is minimumNumberOfCalls in CircuitBreaker ?
+
+>>  It's the minimum number of recorded calls required before the CircuitBreaker will even calculate a failure
+    or slow-call rate. With slidingWindowSize = 100 and minimumNumberOfCalls = 20, if only 5 calls have
+    happened so far the breaker doesn't make any failure-rate decision yet - only once at least 20 calls are
+    available does it start evaluating the rate. This prevents the breaker from tripping based on a
+    statistically meaningless tiny sample size.
+
+________________________________________________________________________________________________________________________
+
+*   What is the difference between failureRateThreshold and slowCallRateThreshold ?
+
+>>  They protect against two different failure conditions. failureRateThreshold opens the breaker once the
+    percentage of failed calls gets too high. slowCallRateThreshold opens the breaker once the percentage of
+    calls taking too long gets too high - even if those calls technically return successfully. This matters
+    because a downstream service can be 'healthy' by failure rate alone while still being effectively unusable
+    because nearly every request is extremely slow - configuring both lets the breaker catch hard failures and
+    performance degradation.
+
+________________________________________________________________________________________________________________________
+
+*   What is slowCallDurationThreshold in CircuitBreaker ?
+
+>>  It defines how long a call must take before Resilience4j classifies it as 'slow' at all. For example, with
+    slowCallDurationThreshold = 2s, a 500ms or 1s call is normal, but a 3s call counts as slow. Slow calls then
+    contribute to the slow-call rate, which (via slowCallRateThreshold) can independently trip the breaker even
+    when nothing is technically failing.
+
+________________________________________________________________________________________________________________________
+
+*   What are all the important states of a Resilience4j CircuitBreaker ?
+
+>>  The three normal states: CLOSED (calls allowed, failures/slow calls recorded), OPEN (calls rejected
+    immediately, the downstream is never actually called), and HALF_OPEN (a limited number of trial calls
+    allowed through to test recovery). Resilience4j also has three special states: METRICS_ONLY (calls allowed
+    and metrics recorded, but no actual circuit-breaking behavior applied), DISABLED (circuit-breaking
+    functionality turned off entirely), and FORCED_OPEN (calls rejected regardless of the actual failure-rate
+    calculation) - the special states are particularly useful for operational control and testing.
+
+________________________________________________________________________________________________________________________
+
+*   Does CircuitBreaker limit the number of concurrent requests ?
+
+>>  No - CircuitBreaker and Bulkhead solve different problems entirely. CircuitBreaker decides whether a call
+    should be allowed at all based on the recorded health of previous calls (with the breaker CLOSED, all 100
+    concurrent requests could potentially execute at once). Bulkhead limits how many calls can execute
+    concurrently (e.g. Bulkhead(maxConcurrentCalls = 10) means only 10 of those 100 requests execute at a time).
+    In short: CircuitBreaker is failure isolation, Bulkhead is concurrency/resource isolation - Resilience4j
+    explicitly recommends combining them when you need both behaviors.
+
+________________________________________________________________________________________________________________________
+
+*   What is the difference between Semaphore Bulkhead and ThreadPool Bulkhead ?
+
+>>  Semaphore Bulkhead limits concurrent executions using permits, without creating any separate thread pool -
+    e.g. maxConcurrentCalls = 10 means at most 10 executions can be inside the protected section at once,
+    still running on the caller's own thread. ThreadPool Bulkhead instead uses a dedicated thread pool and
+    queue (Request -> Queue -> dedicated Executor -> downstream call), giving stronger thread/resource
+    isolation at the cost of the extra overhead of a separate pool. Semaphore Bulkhead is generally for simple
+    concurrency limiting; ThreadPool Bulkhead is for when you also want true execution isolation.
+
+________________________________________________________________________________________________________________________
+
+*   When should you use Semaphore Bulkhead versus ThreadPool Bulkhead ?
+
+>>  Use Semaphore Bulkhead when the requirement is simply 'allow only N concurrent executions' - e.g. limiting
+    concurrent payment calls. Use ThreadPool Bulkhead when the requirement is 'isolate this workload onto its
+    own thread pool so it can't consume the application's general execution resources' - e.g. a CPU-heavy
+    legacy integration you want fully isolated. ThreadPool Bulkhead needs careful capacity planning, since
+    adding thread pools/queues can itself introduce meaningful resource consumption and latency.
+
+________________________________________________________________________________________________________________________
+
+*   What is the difference between RateLimiter and Bulkhead ?
+
+>>  RateLimiter controls the rate of execution ('how many calls can start during a period' - e.g. 100 requests/
+    sec maximum). Bulkhead controls concurrency ('how many calls can execute simultaneously' - e.g. 20
+    concurrent calls maximum). If 100 requests arrive at once, RateLimiter limits how many are admitted per
+    time window, while Bulkhead limits how many of the admitted ones are actually executing at the same
+    moment - they're commonly combined when both throughput and concurrency need to be controlled
+    independently.
+
+________________________________________________________________________________________________________________________
+
+*   How does Resilience4j's RateLimiter work ?
+
+>>  It divides time into refresh periods and grants a configured number of permissions per period - e.g.
+    limitForPeriod = 10 and limitRefreshPeriod = 1s gives roughly 10 permits/second. Every call requires a
+    permission; if none is immediately available, timeoutDuration determines how long the caller waits for
+    one, and if a permission still can't be obtained within that window, it throws RequestNotPermitted, which
+    a fallback can then handle.
+
+________________________________________________________________________________________________________________________
+
+*   What is the difference between a Resilience4j RateLimiter and an API Gateway rate limiter ?
+
+>>  A Resilience4j RateLimiter is typically an in-process, per-instance limiter - if Pod A and Pod B each enforce
+    100 requests/sec independently, the effective system-wide limit is actually up to 200 requests/sec, not
+    100. An API Gateway or distributed rate limiter, by contrast, enforces one centralized limit across every
+    instance (Clients -> Gateway -> global rate limit -> microservices). Resilience4j's RateLimiter is
+    local/in-process protection; for a genuine global business quota across many instances, an external/
+    distributed rate-limiting mechanism is generally the right tool.
+
+________________________________________________________________________________________________________________________
+
+*   How does Resilience4j's Retry decide which exceptions should be retried ?
+
+>>  Retry can be configured with an explicit retryExceptions list (e.g. IOException, TimeoutException) and an
+    ignoreExceptions list (e.g. IllegalArgumentException) - matching exceptions in the first list trigger a
+    retry, matching ones in the second never do, regardless of how many attempts remain. This matters because
+    not every failure is transient - retrying something like an invalid request repeatedly just wastes
+    resources and adds load for no benefit.
+
+________________________________________________________________________________________________________________________
+
+*   What is a Retry predicate in Resilience4j ?
+
+>>  A Retry predicate lets you dynamically decide whether a given failure should be retried, rather than only
+    matching on the exception's class - the exception is passed through the predicate, which returns true
+    (retry) or false (fail) based on whatever runtime logic you define. This is useful when the retry decision
+    genuinely depends on runtime characteristics (e.g. a specific error code embedded in the exception) rather
+    than simply which exception type was thrown.
+
+________________________________________________________________________________________________________________________
+
+*   What retry backoff strategies can be used with Resilience4j ?
+
+>>  A fixed wait duration retries at the same interval every time (Attempt 1 -> wait 1s -> Attempt 2 -> wait 1s
+    -> Attempt 3). Exponential backoff increases the wait each time (Attempt 1 -> 1s -> Attempt 2 -> 2s ->
+    Attempt 3 -> 4s -> Attempt 4). Randomized/jittered delays can additionally be layered on top of either
+    strategy to avoid many clients retrying at exactly the same moment - jitter is particularly valuable in
+    distributed systems since it reduces synchronized retry storms across many callers.
+
+________________________________________________________________________________________________________________________
+
+*   What is a retry storm and how can Resilience4j help prevent it ?
+
+>>  A retry storm happens when a downstream service fails and a large number of callers simultaneously retry
+    their failed requests, turning 1,000 original requests into, say, 3,000 additional retry attempts on an
+    already-struggling dependency - creating a positive feedback loop that makes the outage worse. Mitigations
+    include exponential backoff, jitter, limiting maxAttempts, combining Retry with a CircuitBreaker/
+    RateLimiter/Bulkhead, and only retrying genuinely transient failures - retry should never be treated as a
+    simple, unconditional 'just try again'.
+
+________________________________________________________________________________________________________________________
+
+*   Why can blindly combining Retry and CircuitBreaker be dangerous ?
+
+>>  Retry multiplies the number of calls made to a downstream dependency, while CircuitBreaker exists specifically
+    to stop calls once that dependency is unhealthy - 100 incoming requests with Retry x 3 can become up to
+    300 downstream attempts, and if the downstream is already overloaded, that amplification makes the problem
+    worse rather than better. Retry should generally be limited to transient failures and deliberately combined
+    with a CircuitBreaker/backoff, not stacked on indiscriminately.
+
+________________________________________________________________________________________________________________________
+
+*   What is the purpose of TimeLimiter ?
+
+>>  TimeLimiter prevents an asynchronous operation from taking indefinitely long - e.g. with
+    timeoutDuration = 2s, if the external service call takes longer than 2 seconds, it's treated as a timeout.
+    It protects the caller from waiting forever on a slow dependency, and is especially relevant for
+    asynchronous operations like CompletableFuture and reactive types.
+
+________________________________________________________________________________________________________________________
+
+*   What is the difference between TimeLimiter and an HTTP client timeout ?
+
+>>  They operate at different abstraction levels. An HTTP client timeout controls how long the HTTP client
+    itself waits for network/HTTP-level operations. TimeLimiter controls the maximum duration of the whole
+    asynchronous operation from the application's own perspective - e.g. an HTTP call might have a client
+    timeout of 3s while the overall async operation wrapping it has a TimeLimiter of 2s, giving an
+    application-level deadline. TimeLimiter should never be treated as a replacement for properly configured
+    network/connection/read/write timeouts - both matter, at their respective layers.
+
+________________________________________________________________________________________________________________________
+
+*   What happens when cancelRunningFuture is enabled in TimeLimiter ?
+
+>>  It controls whether Resilience4j attempts to cancel the underlying future once the timeout is reached - once
+    the timeout fires, Resilience4j requests cancellation of the in-flight operation's future. Importantly,
+    cancellation/interruption doesn't guarantee the underlying work actually stops immediately - the code doing
+    that work must itself cooperate with interruption/cancellation for it to genuinely halt, rather than simply
+    running to completion in the background regardless.
+
+________________________________________________________________________________________________________________________
+
+*   How does fallback work in Resilience4j ?
+
+>>  A fallback is an alternative method invoked when the protected operation fails or is rejected - e.g.
+    @CircuitBreaker(name = "payment", fallbackMethod = "fallback") on a pay() method, with a matching
+    fallback(Throwable ex) method returning a cached response instead. On success, the protected operation's
+    normal response is returned; on failure/rejection, Resilience4j automatically invokes the fallback and
+    returns its result instead - conceptually a specialized recovery mechanism built into the annotation
+    itself.
+
+________________________________________________________________________________________________________________________
+
+*   What are the rules for a Resilience4j fallback method ?
+
+>>  It must normally live in the same class, have the same method parameters as the original method plus one
+    additional exception parameter, and return the same return type as the original. For example, a
+    getProduct(String id) method pairs with a fallback(String id, Throwable ex) method. When multiple fallback
+    methods exist with different exception parameter types (e.g. fallback(String, TimeoutException),
+    fallback(String, RuntimeException), fallback(String, Exception)), Resilience4j selects the most specific
+    matching one for the actual exception thrown - a TimeoutException would resolve to the TimeoutException-
+    specific fallback rather than the more generic ones.
+
+________________________________________________________________________________________________________________________
+
+*   Does fallback mean that the original operation is retried ?
+
+>>  No - fallback and Retry solve different problems. Retry means: failure -> try again -> try again -> (final)
+    failure. Fallback means: failure -> immediately return an alternative operation/response instead, with no
+    further attempt at the original. They can be combined though: original call -> Retry -> all retry attempts
+    fail -> Fallback is then invoked as the last resort after retries are genuinely exhausted.
+
+________________________________________________________________________________________________________________________
+
+*   What happens when multiple Resilience4j annotations are applied to the same method ?
+
+>>  The mechanisms are composed together around that one method - e.g. stacking @Retry, @CircuitBreaker,
+    @RateLimiter, @Bulkhead, and @TimeLimiter on the same method decorates it with all of them, conceptually
+    nested as Retry -> CircuitBreaker -> RateLimiter -> TimeLimiter -> Bulkhead -> actual method. The exact
+    execution order genuinely matters here, since changing which decorator wraps which changes the resulting
+    behavior - it's not simply 'all five execute independently'.
+
+________________________________________________________________________________________________________________________
+
+*   What is the default aspect order of Resilience4j's Spring annotations ?
+
+>>  Resilience4j's Spring AOP aspects have a defined default order: Retry wraps CircuitBreaker, which wraps
+    RateLimiter, which wraps TimeLimiter, which wraps Bulkhead, which wraps the actual method. If a different
+    order is genuinely required, Resilience4j provides aspect-order configuration properties to change it, or
+    you can drop to the functional decorator API to control composition explicitly rather than relying on
+    annotation stacking order.
+
+________________________________________________________________________________________________________________________
+
+*   Why is the order of Retry and CircuitBreaker important ?
+
+>>  Because the order determines whether the CircuitBreaker observes each individual retry attempt or only the
+    outcome of the whole retry sequence as one call. Retry wrapping CircuitBreaker (Retry -> CircuitBreaker ->
+    remote call) versus CircuitBreaker wrapping Retry (CircuitBreaker -> Retry -> remote call) can produce
+    meaningfully different failure counts and different circuit-opening behavior - resilience policies should
+    be designed with this in mind deliberately, not by just stacking annotations and hoping for the best.
+
+________________________________________________________________________________________________________________________
+
+*   What is the difference between annotation-based and functional Resilience4j usage ?
+
+>>  Annotation-based usage (@CircuitBreaker(name = "payment") on a method) has less boilerplate and is
+    convenient in Spring applications, implemented via AOP. Functional usage builds the decoration explicitly
+    in code - e.g. Decorators.ofSupplier(supplier).withCircuitBreaker(circuitBreaker).withRetry(retry).decorate()
+    - giving explicit control over composition/ordering, and works outside Spring entirely or when the
+    composition needs to be decided dynamically at runtime. Resilience4j's core API is fundamentally built on
+    decorators and functional interfaces, with the Spring annotations sitting on top as a convenience layer.
+
+________________________________________________________________________________________________________________________
+
+*   Why can Resilience4j annotations fail during self-invocation ?
+
+>>  Because they're implemented as Spring AOP proxies, and a proxy is only involved when the call comes from
+    outside the bean - if methodA() calls this.methodB() directly within the same class, and methodB() is
+    annotated @Retry, that self-invocation bypasses the Spring proxy entirely, so the @Retry aspect never
+    actually executes. An external caller going through the proxy correctly triggers the aspect
+    (external caller -> Spring Proxy -> @Retry -> methodB()), but a same-class self-invocation silently
+    skips it - this is a general Spring AOP limitation, and a common reason resilience annotations 'don't seem
+    to work'.
+
+________________________________________________________________________________________________________________________
+
+*   What exceptions are thrown when Resilience4j rejects a call ?
+
+>>  Different mechanisms throw different rejection exceptions: CircuitBreaker OPEN throws
+    CallNotPermittedException, a full Bulkhead throws BulkheadFullException, a RateLimiter that can't grant a
+    permission throws RequestNotPermitted, and a TimeLimiter timeout throws a timeout-related exception. These
+    can each be used by fallback methods, exception handlers, or higher-level application logic to react
+    appropriately to the specific rejection reason.
+
+________________________________________________________________________________________________________________________
+
+*   What is the difference between CallNotPermittedException and a downstream exception ?
+
+>>  They represent completely different failures. A downstream exception (e.g. an IOException/HTTP error) means
+    the call actually reached the CircuitBreaker-protected downstream service and it genuinely failed there.
+    CallNotPermittedException means the CircuitBreaker was OPEN and rejected the call immediately - the
+    downstream service was never called at all. This distinction matters when debugging (did the dependency
+    fail, or did we never even try) and when designing fallback behavior.
+
+________________________________________________________________________________________________________________________
+
+*   How does Resilience4j expose metrics and events ?
+
+>>  It integrates with Actuator and Micrometer in Spring Boot applications, exposing metrics for CircuitBreaker,
+    Retry, RateLimiter, Bulkhead, and TimeLimiter via the flow Resilience4j -> Micrometer -> MeterRegistry ->
+    Actuator -> /actuator/metrics -> Prometheus -> Grafana. Beyond metrics, Resilience4j also emits discrete
+    events that can be consumed directly for operational monitoring and diagnostics.
+
+________________________________________________________________________________________________________________________
+
+*   What Resilience4j Actuator endpoints are available ?
+
+>>  With the Spring Boot integration, Resilience4j exposes its own management endpoints per component -
+    /actuator/circuitbreakers and /actuator/circuitbreakerevents, /actuator/retries and /actuator/retryevents,
+    /actuator/ratelimiters and /actuator/ratelimiterevents, /actuator/bulkheads and /actuator/bulkheadevents,
+    /actuator/timelimiters and /actuator/timelimiterevents. Exact availability depends on the configured
+    version and your Actuator exposure settings, and these endpoints are useful for inspecting currently
+    configured instances and recent resilience events directly.
+
+________________________________________________________________________________________________________________________
+
+*   What are Resilience4j events and why are they useful ?
+
+>>  Resilience4j components emit events whenever an important resilience-related operation happens - for
+    CircuitBreaker that includes successful calls, errors, state transitions, calls rejected because the
+    circuit is open, and slow calls; similar event mechanisms exist for Retry, RateLimiter, Bulkhead, and
+    TimeLimiter. These events are useful for debugging, auditing resilience behavior, operational monitoring,
+    and building custom event consumers - Resilience4j maintains circular event-consumer buffers holding recent
+    events for exactly this purpose.
+
+________________________________________________________________________________________________________________________
+
+*   How would you monitor a CircuitBreaker in production ?
+
+>>  Watch both its state and its underlying behavior - current CircuitBreaker state, failure rate, slow-call
+    rate, and counts of successful/failed/rejected/slow calls, plus state transitions over time, flowing
+    through Resilience4j -> Micrometer -> Prometheus -> Grafana. From there you can build concrete alerts like
+    'Payment CircuitBreaker has remained OPEN for 5 minutes', 'Payment failure rate > 50%', or 'Payment p95
+    latency has exceeded the threshold', rather than only finding out about a problem when a customer reports
+    it.
+
+________________________________________________________________________________________________________________________
+
+*   How can Resilience4j be integrated with Micrometer ?
+
+>>  Resilience4j provides a dedicated Micrometer integration module (resilience4j-micrometer) that converts its
+    internal resilience measurements into standard Micrometer meters - the flow is CircuitBreaker ->
+    resilience4j-micrometer -> Micrometer -> MeterRegistry -> Prometheus -> Grafana - which means resilience
+    metrics ride the exact same observability pipeline as every other application metric, with no separate
+    monitoring setup needed.
+
+________________________________________________________________________________________________________________________
+
+*   How does Resilience4j work with asynchronous operations ?
+
+>>  It supports asynchronous return types like CompletableFuture directly - e.g. a @CircuitBreaker-annotated
+    method that returns CompletableFuture<PaymentResponse>. For fully reactive applications (methods returning
+    Mono/Flux), you additionally need the appropriate reactive integration module
+    (resilience4j-reactor) for the annotations to correctly compose with the reactive type rather than trying to
+    treat it as a plain blocking call.
+
+________________________________________________________________________________________________________________________
+
+*   What is important to understand about ThreadPool Bulkhead and CompletableFuture ?
+
+>>  ThreadPool Bulkhead executes the protected asynchronous work on its own dedicated executor (Request ->
+    ThreadPool Bulkhead -> dedicated Executor -> async operation), isolating it from the application's
+    general-purpose executor. But that dedicated pool is still a finite resource, so you need to actually plan
+    for pool size, queue size, rejection policy, expected task duration, memory consumption, and shutdown
+    behavior - adding a ThreadPool Bulkhead without real capacity planning just moves the bottleneck from one
+    thread pool to another rather than actually solving it.
+
+________________________________________________________________________________________________________________________
+
+*   Can Resilience4j prevent cascading failures by itself ?
+
+>>  It provides mechanisms that help, but it doesn't automatically solve every distributed-system failure mode
+    on its own. Consider Service A -> B -> C: if C becomes slow, B's threads block waiting on C, making B slow
+    in turn, which then blocks A's threads too - the classic cascade. TimeLimiter bounds waiting time, Bulkhead
+    limits resource consumption, CircuitBreaker stops calls to a clearly unhealthy dependency, RateLimiter
+    controls traffic, and Retry carefully recovers transient failures - but these still need to be combined
+    with proper client timeouts, connection pool limits, thread-pool sizing, load shedding, monitoring, and
+    genuine capacity planning to actually prevent the cascade end-to-end.
+
+________________________________________________________________________________________________________________________
+
+*   How would you design resilience for a payment-service dependency ?
+
+>>  A typical layered design: Order Service -> RateLimiter -> Bulkhead -> CircuitBreaker -> Retry -> TimeLimiter/
+    HTTP timeout -> Payment Service. Each layer solves a distinct problem: RateLimiter protects your
+    service/the downstream from excessive throughput, Bulkhead prevents payment calls from consuming every
+    available resource, CircuitBreaker stops calling a dependency that's consistently failing, Retry recovers
+    from genuinely transient failures, and TimeLimiter/client timeout prevents indefinite waiting. The exact
+    ordering should be chosen deliberately, since composition order changes the resulting behavior.
+
+________________________________________________________________________________________________________________________
+
+*   When should you NOT use Retry ?
+
+>>  Avoid or carefully evaluate Retry when the operation is not idempotent, the error is clearly permanent (a
+    validation failure, an authorization error), the downstream is already overloaded, the request is
+    extremely expensive to repeat, retrying would amplify traffic unhelpfully, or the caller itself is already
+    being retried by something further upstream. A classic dangerous case: POST /payment succeeds but the
+    response is lost - the client thinks it failed and retries, potentially charging the payment twice.
+    Retrying non-idempotent operations safely requires additional design, like idempotency keys, deduplication,
+    or careful transactional design, not just wrapping the call in @Retry.
+
+________________________________________________________________________________________________________________________
+
+*   How do you prevent duplicate side effects when using Retry ?
+
+>>  Make the operation itself idempotent before layering retry on top - e.g. the client sends an
+    Idempotency-Key header (Idempotency-Key: abc123) with a POST /payment request; the first request with that
+    key creates the payment, and a retry carrying the same key returns the already-existing payment result
+    instead of creating a second one. Retry plus idempotency together gives safe recovery from transient
+    failures - this is especially important for payments, orders, resource creation, message publishing, and
+    any other operation with an external side effect.
+
+________________________________________________________________________________________________________________________
+
+*   How does Resilience4j differ from simply using try-catch ?
+
+>>  A plain try-catch handles one individual failure inline at the call site. Resilience4j instead provides
+    reusable, configurable, observable resilience policies - circuit breaking, retry, rate limiting, bulkhead
+    isolation, time limiting, metrics, events, externalized configuration, and policy composition - all as
+    shared infrastructure rather than one-off error-handling code scattered across the codebase. In short,
+    Resilience4j moves resilience out of ad-hoc try-catch blocks and into a reusable, consistently-configured
+    layer.
+
+________________________________________________________________________________________________________________________
+
+*   What is the difference between Resilience4j and a timeout alone ?
+
+>>  A plain timeout only addresses one specific concern: preventing indefinite waiting for an operation.
+    Resilience4j provides a much broader set of complementary failure-handling patterns on top of that -
+    CircuitBreaker (stop calling unhealthy dependencies), Retry (recover from transient failures), Bulkhead
+    (isolate resources), and RateLimiter (control throughput) - a production system commonly needs several of
+    these working together, not just a bare timeout.
+
+________________________________________________________________________________________________________________________
+
+*   What is the difference between resilience and availability ?
+
+>>  Resilience is a system's ability to keep operating acceptably when failures occur; availability is simply
+    whether the system is currently operational and accessible at all. If the Payment Service goes down, a
+    non-resilient Order Service goes down entirely with it. A resilient Order Service instead has its
+    CircuitBreaker trip and its Fallback engage, letting it continue serving customers with degraded
+    functionality even while Payment Service is unavailable. So resilience mechanisms can meaningfully improve
+    overall system availability during a dependency failure, though they can never fully guarantee
+    availability on their own.
+
+________________________________________________________________________________________________________________________
+
+*   What are the most important Resilience4j concepts to know for a Senior SWE interview ?
+
+>>  Ten areas worth being genuinely fluent in: (1) CircuitBreaker - its states (CLOSED/OPEN/HALF_OPEN plus
+    METRICS_ONLY/DISABLED/FORCED_OPEN), count-based vs time-based sliding windows, minimumNumberOfCalls,
+    failureRateThreshold, slowCallRateThreshold, slowCallDurationThreshold, waitDurationInOpenState, and
+    permittedNumberOfCallsInHalfOpenState. (2) Retry - maxAttempts, retry/ignore exceptions, retry predicates,
+    backoff, jitter, retry storms, and idempotency. (3) RateLimiter - limitForPeriod, limitRefreshPeriod,
+    timeoutDuration, and local vs distributed rate limiting. (4) Bulkhead - Semaphore vs ThreadPool variants,
+    concurrency isolation, and queue/thread-pool sizing. (5) TimeLimiter - timeoutDuration, cancellation,
+    CompletableFuture/reactive operations, and its relationship to HTTP/client timeouts. (6) Fallback - method
+    signature rules, exception matching, and fallback vs retry. (7) Composition - stacking multiple
+    annotations, aspect ordering, and functional decorators. (8) Spring Integration - AOP proxies,
+    self-invocation, configuration, and customizers. (9) Observability - Micrometer, Actuator, metrics, events,
+    and state transitions. (10) Distributed-system design - cascading failures, retry storms, idempotency,
+    timeouts, resource isolation, load shedding, and graceful degradation. These ten are what move the
+    conversation from 'I know Resilience4j annotations' to 'I understand how to design a resilient distributed
+    system using Resilience4j'.
+
+________________________________________________________________________________________________________________________

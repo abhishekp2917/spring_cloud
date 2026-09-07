@@ -1,0 +1,495 @@
+*   What is Spring Boot Actuator ?
+
+>>  Spring Boot Actuator is a production-ready feature of Spring Boot that provides endpoints for monitoring,
+    managing, and inspecting a running application. It exposes operational information - application health,
+    metrics, JVM memory and threads, environment/configuration, beans, request mappings, logging configuration,
+    scheduled tasks, and startup information - through HTTP endpoints or JMX. It's meant for production
+    monitoring and management, not for exposing business APIs.
+
+________________________________________________________________________________________________________________________
+
+*   What dependency is required to use Spring Boot Actuator ?
+
+>>  Add the spring-boot-starter-actuator dependency (groupId org.springframework.boot). Adding it enables
+    Actuator's auto-configuration and provides the infrastructure needed to expose management endpoints - no
+    further setup is required just to get the default endpoints working.
+
+________________________________________________________________________________________________________________________
+
+*   How do you enable Actuator endpoints in Spring Boot ?
+
+>>  Control which endpoints are exposed over HTTP via management.endpoints.web.exposure.include - by default
+    only a limited set is exposed. You can name specific endpoints (e.g.
+    management.endpoints.web.exposure.include=health,info,metrics,loggers) or expose everything with
+    management.endpoints.web.exposure.include=* - though exposing everything in production is generally
+    discouraged, since some endpoints can reveal sensitive information or perform management operations.
+
+________________________________________________________________________________________________________________________
+
+*   What is the difference between an Actuator endpoint and a normal REST endpoint ?
+
+>>  A normal REST endpoint (/orders, /users, /payments) exposes business/application functionality. An Actuator
+    endpoint (/actuator/health, /actuator/metrics, /actuator/env, /actuator/beans) exposes operational and
+    management information about the application itself, implemented through Spring Boot's own management/
+    endpoint infrastructure rather than a normal @RestController - and you can also define your own custom
+    Actuator endpoints using @Endpoint and @ReadOperation.
+
+________________________________________________________________________________________________________________________
+
+*   What is the default URL structure of Spring Boot Actuator endpoints ?
+
+>>  By default every Actuator endpoint is exposed under /actuator (e.g. /actuator/health, /actuator/info,
+    /actuator/metrics, /actuator/env, /actuator/beans). The base path can be changed via
+    management.endpoints.web.base-path=/manage, after which the same endpoints become /manage/health,
+    /manage/metrics, and so on.
+
+________________________________________________________________________________________________________________________
+
+*   What are the most important Spring Boot Actuator endpoints ?
+
+>>  The ones worth knowing well: /actuator/health, /actuator/info, /actuator/metrics, /actuator/prometheus,
+    /actuator/env, /actuator/configprops, /actuator/beans, /actuator/mappings, /actuator/conditions,
+    /actuator/loggers, /actuator/threaddump, /actuator/heapdump, /actuator/scheduledtasks, /actuator/startup,
+    /actuator/caches, and /actuator/shutdown - each serves a different operational purpose, from health/metrics
+    monitoring to live debugging to management actions.
+
+________________________________________________________________________________________________________________________
+
+*   What is the /actuator/health endpoint ?
+
+>>  It provides the health status of the application and its important dependencies (e.g. {"status": "UP"}).
+    Depending on what dependencies the application actually uses, it can also report on the database, Redis,
+    RabbitMQ, Kafka, Elasticsearch, disk space, and other external systems. It's commonly consumed by load
+    balancers, Kubernetes, and monitoring systems to decide whether an instance should receive traffic.
+
+________________________________________________________________________________________________________________________
+
+*   What are HealthIndicators in Spring Boot Actuator ?
+
+>>  HealthIndicator is an extension point for supplying custom health information to the Actuator health
+    endpoint - implement the interface's health() method (e.g. returning
+    Health.up().withDetail("paymentService", "available").build()) and Actuator automatically discovers it and
+    folds the result into /actuator/health, so you don't need a separate REST endpoint just to expose custom
+    health information.
+
+________________________________________________________________________________________________________________________
+
+*   What is the difference between liveness and readiness in Actuator ?
+
+>>  Liveness answers 'is this application instance alive' (the process is functioning). Readiness answers 'is
+    this application instance ready to receive traffic' (it has successfully initialized its required
+    dependencies). Kubernetes uses these two signals differently - liveness decides whether to restart a
+    container, readiness decides whether to send it traffic. Actuator exposes them separately as
+    /actuator/health/liveness and /actuator/health/readiness.
+
+________________________________________________________________________________________________________________________
+
+*   What is the /actuator/info endpoint ?
+
+>>  It exposes arbitrary application information supplied through InfoContributor implementations or configured
+    application properties (e.g. {"app": {"name": "Order Service", "version": "1.5.2"}}) - useful for
+    exposing non-sensitive build or application metadata.
+
+________________________________________________________________________________________________________________________
+
+*   What is InfoContributor in Actuator ?
+
+>>  InfoContributor is an extension point for adding custom information to /actuator/info - implement its
+    contribute(Info.Builder builder) method (e.g. builder.withDetail("service", "order-service")) and
+    Actuator automatically includes it in the endpoint's response. Use this when the data is application
+    metadata rather than a metric or a health status.
+
+________________________________________________________________________________________________________________________
+
+*   What is the /actuator/metrics endpoint ?
+
+>>  It exposes application metrics through Actuator - hitting /actuator/metrics lists available metric names
+    (jvm.memory.used, jvm.threads.live, http.server.requests, process.cpu.usage, system.cpu.usage, etc.), and a
+    specific one can be queried directly at /actuator/metrics/jvm.memory.used. These metrics are backed by
+    Micrometer underneath.
+
+________________________________________________________________________________________________________________________
+
+*   How does Actuator use Micrometer ?
+
+>>  Micrometer is the actual metrics instrumentation and collection library - the application records metrics
+    (via Counter, Gauge, Timer, DistributionSummary APIs) into a MeterRegistry, and Actuator's MetricsEndpoint
+    exposes what's in that registry through /actuator/metrics. Micrometer can be used entirely independently of
+    Actuator, but /actuator/metrics itself is specifically an Actuator endpoint sitting on top of it.
+
+________________________________________________________________________________________________________________________
+
+*   Can we create custom metrics and expose them through Actuator ?
+
+>>  Yes - register a custom Micrometer metric with the MeterRegistry, e.g.
+    Counter.builder("orders.created").description("Number of orders created").register(meterRegistry), then
+    call counter.increment() wherever the event happens. The metric is then automatically inspectable at
+    /actuator/metrics/orders.created with no custom REST endpoint needed.
+
+________________________________________________________________________________________________________________________
+
+*   What are the main types of Micrometer metrics exposed through Actuator ?
+
+>>  Counter measures the number of events and generally only increases monotonically (e.g. orders created).
+    Gauge represents a current value that can go up or down (e.g. active connections). Timer measures duration
+    and gives you count plus total time (e.g. request latency). DistributionSummary measures the distribution
+    of arbitrary numeric values (e.g. request payload size or order amount).
+
+________________________________________________________________________________________________________________________
+
+*   What are tags in Micrometer metrics exposed through Actuator ?
+
+>>  Tags are dimensions attached to a metric that let you break it down and analyze it - e.g.
+    http.requests{method="GET", status="200"} lets you answer questions like 'how many GET requests occurred'
+    or 'what's the latency for POST requests specifically'. Tags are very useful for filtering/aggregating, but
+    high-cardinality values like userId or requestId should generally not be used as tags, since they'd create
+    an enormous number of unique time series.
+
+________________________________________________________________________________________________________________________
+
+*   What is the /actuator/prometheus endpoint ?
+
+>>  It exposes Micrometer metrics in the Prometheus exposition format - the flow is application -> Micrometer ->
+    Prometheus registry -> /actuator/prometheus -> Prometheus (which scrapes it periodically and stores the data
+    as time series) -> Grafana (which queries Prometheus and visualizes it).
+
+________________________________________________________________________________________________________________________
+
+*   What is the difference between /actuator/metrics and /actuator/prometheus ?
+
+>>  Both expose the same underlying Micrometer metrics, but for different purposes. /actuator/metrics is
+    Actuator-oriented - useful for inspecting an individual metric, returned as structured JSON for human/
+    application inspection (e.g. /actuator/metrics/http.server.requests). /actuator/prometheus is specifically
+    formatted for Prometheus scraping, designed to be pulled wholesale by Prometheus on a schedule rather than
+    queried metric-by-metric.
+
+________________________________________________________________________________________________________________________
+
+*   What is the /actuator/env endpoint ?
+
+>>  It exposes information about the application's Spring Environment - its property sources and their resolved
+    values, which can come from application.properties/yml, environment variables, system properties, or
+    command-line arguments. It's primarily a diagnostic endpoint, and because configuration can contain
+    sensitive information, access to it should be carefully secured. In core Spring Boot Actuator it's
+    primarily read-only.
+
+________________________________________________________________________________________________________________________
+
+*   Can /actuator/env modify application.properties ?
+
+>>  No - core Spring Boot's /actuator/env endpoint does not modify the physical application.properties or
+    application.yml file. The file feeds into the Spring Environment, which /actuator/env can read, but the
+    file itself stays unchanged. Spring Cloud adds additional functionality on top of /actuator/env that allows
+    updating the runtime Environment (not the file) - covered separately below.
+
+________________________________________________________________________________________________________________________
+
+*   What is the /actuator/configprops endpoint ?
+
+>>  It exposes information about beans configured using @ConfigurationProperties - e.g. a
+    @ConfigurationProperties(prefix = "database") class with host/port fields would have its actually-bound
+    values visible at /actuator/configprops, which is useful for diagnosing a configuration-binding problem
+    (confirming exactly what value a property ended up resolving to).
+
+________________________________________________________________________________________________________________________
+
+*   What is the /actuator/beans endpoint ?
+
+>>  It provides information about every bean managed by the Spring ApplicationContext - bean names, types,
+    dependencies, scopes, and relationships - which is especially useful for debugging dependency-injection or
+    application-context wiring problems.
+
+________________________________________________________________________________________________________________________
+
+*   What is the /actuator/mappings endpoint ?
+
+>>  It exposes every request mapping registered in the application - including those from @RequestMapping,
+    @GetMapping, @PostMapping-annotated controller methods, and Actuator's own endpoints - useful for answering
+    'which controller handles this URL?'.
+
+________________________________________________________________________________________________________________________
+
+*   What is the /actuator/conditions endpoint ?
+
+>>  It shows information about Spring Boot's auto-configuration conditions - which auto-configurations were
+    actually applied, which were skipped, and exactly which conditions matched or didn't for each. It's
+    particularly useful when debugging why a bean you expected didn't get created.
+
+________________________________________________________________________________________________________________________
+
+*   What is the /actuator/loggers endpoint ?
+
+>>  It exposes and lets you inspect the application's logging configuration - GET /actuator/loggers lists
+    everything, and GET /actuator/loggers/com.example.order shows one specific logger's level. It can also
+    change a logger's level at runtime via POST /actuator/loggers/com.example.order with a body like
+    {"configuredLevel": "DEBUG"} - useful for turning on extra logging in production without a restart.
+
+________________________________________________________________________________________________________________________
+
+*   What is the /actuator/threaddump endpoint ?
+
+>>  It provides a full thread dump of the running application, useful for diagnosing deadlocks, blocked
+    threads, thread starvation, long-running operations, or thread-pool problems - particularly valuable when
+    an application appears stuck or unresponsive.
+
+________________________________________________________________________________________________________________________
+
+*   What is the /actuator/heapdump endpoint ?
+
+>>  It generates a heap dump of the running JVM, which can then be analyzed offline to investigate memory leaks,
+    unexpected object retention, excessive memory consumption, or large object graphs. Heap dumps can be large
+    and contain sensitive data, so this endpoint should be heavily restricted in production.
+
+________________________________________________________________________________________________________________________
+
+*   What is the /actuator/scheduledtasks endpoint ?
+
+>>  It exposes information about Spring's scheduled tasks (anything configured with @Scheduled), letting you
+    verify which scheduled tasks actually exist in the running application and what their scheduling
+    configuration (cron expression, fixed rate/delay) is.
+
+________________________________________________________________________________________________________________________
+
+*   What is the /actuator/startup endpoint ?
+
+>>  It provides information about application startup steps, when startup tracking is enabled - helping identify
+    which initialization steps took the most time, and which beans/configuration contributed to slow startup.
+    Useful specifically for investigating slow application startup.
+
+________________________________________________________________________________________________________________________
+
+*   What is the /actuator/caches endpoint ?
+
+>>  It exposes information about caches managed by Spring's cache abstraction - cache names, cache managers, and
+    cache configuration - and depending on the cache implementation and Actuator's capabilities, may also allow
+    cache management operations.
+
+________________________________________________________________________________________________________________________
+
+*   What is the /actuator/shutdown endpoint ?
+
+>>  It can gracefully shut down the Spring Boot application via POST /actuator/shutdown. It's disabled by
+    default, and should only be enabled when there's a genuine operational requirement for it, heavily secured
+    when it is - it's a good example of an Actuator endpoint that performs an action rather than just exposing
+    information.
+
+________________________________________________________________________________________________________________________
+
+*   Can we create custom Actuator endpoints ?
+
+>>  Yes - annotate a Spring-managed component @Endpoint(id = "features") and add a method annotated
+    @ReadOperation (e.g. returning Map.of("newCheckout", true)) - this automatically creates
+    GET /actuator/features. @ReadOperation handles read operations, @WriteOperation handles write/update
+    operations, and @DeleteOperation handles delete operations on the custom endpoint.
+
+________________________________________________________________________________________________________________________
+
+*   What are @ReadOperation, @WriteOperation and @DeleteOperation in custom Actuator endpoints ?
+
+>>  They define which operations a custom Actuator endpoint supports. @ReadOperation handles reads, usually
+    exposed over HTTP GET. @WriteOperation handles writes/updates, usually exposed over HTTP POST. @DeleteOperation
+    handles deletes, usually exposed over HTTP DELETE - you can mix and match them on the same @Endpoint class
+    depending on what capabilities that custom endpoint needs to expose.
+
+________________________________________________________________________________________________________________________
+
+*   Can a custom Actuator endpoint expose custom Micrometer metrics ?
+
+>>  Yes - inject MeterRegistry into the custom @Endpoint class and read metrics registered with Micrometer
+    directly (e.g. registry.find("orders.created").counter()) inside a @ReadOperation method, exposing them
+    under your own custom path like /actuator/business-metrics. That said, if the goal is simply to expose
+    metrics generically, the existing /actuator/metrics endpoint should usually be preferred over building a
+    custom one.
+
+________________________________________________________________________________________________________________________
+
+*   How do you customize the Actuator management port ?
+
+>>  By default Actuator shares the application's normal HTTP port. Set management.server.port=8081 to expose it
+    on a separate port instead (application traffic on 8080, Actuator on 8081) - separating the management port
+    makes it easier to apply different network/security policies specifically to management endpoints.
+
+________________________________________________________________________________________________________________________
+
+*   Can Actuator endpoints have different security rules from application APIs ?
+
+>>  Yes - Actuator endpoints can be secured independently via Spring Security. A common production setup routes
+    public business APIs through the normal application port, while sensitive management endpoints (/env,
+    /heapdump, /shutdown, /loggers) sit on a separate management port only reachable from an internal network/
+    monitoring infrastructure, never publicly.
+
+________________________________________________________________________________________________________________________
+
+*   What is the difference between Actuator monitoring and application logging ?
+
+>>  Logging records individual events/messages (e.g. 'Payment failed for order 123'). Actuator/Micrometer
+    instead provide structured operational information: metrics answer 'how much/how often' (e.g.
+    payment.failure.count = 1250, payment.latency.p95 = 250ms), health answers 'is it working' (e.g.
+    paymentService = DOWN), and tracing answers 'where did the request go' (Order -> Payment -> Database) - the
+    four are complementary, not substitutes for each other.
+
+________________________________________________________________________________________________________________________
+
+*   How does Actuator integrate with Resilience4j ?
+
+>>  Resilience4j integrates with Micrometer to publish metrics for its own components - CircuitBreaker, Retry,
+    RateLimiter, Bulkhead, TimeLimiter - into the same MeterRegistry Actuator already exposes, following the
+    flow Resilience4j -> Micrometer -> MeterRegistry -> Actuator -> /actuator/metrics -> Prometheus/Grafana.
+    This gives you circuit breaker state, successful/failed/slow call counts, retry attempts, and rate limiter
+    activity through the exact same observability pipeline as any other application metric.
+
+________________________________________________________________________________________________________________________
+
+*   What is the relationship between Actuator, Micrometer, Prometheus and Grafana ?
+
+>>  Each solves a different part of the observability problem: Actuator exposes operational endpoints,
+    Micrometer instruments and records the actual metrics, Prometheus scrapes and stores those metrics as time-
+    series data, and Grafana visualizes them. The full flow is Spring Boot Application -> Actuator ->
+    Micrometer -> /actuator/prometheus -> Prometheus -> Grafana.
+
+________________________________________________________________________________________________________________________
+
+*   What is Spring Cloud Actuator ?
+
+>>  Spring Cloud extends Spring Boot Actuator with additional endpoints and management capabilities useful
+    specifically in distributed systems - distributed configuration, runtime configuration refresh, application
+    lifecycle management, and Spring Cloud Bus for broadcasting events across instances. The important added
+    endpoints are /actuator/refresh, /actuator/restart, /actuator/pause, /actuator/resume, /actuator/busenv,
+    /actuator/busrefresh, and /actuator/busshutdown, plus an extended version of /actuator/env.
+
+________________________________________________________________________________________________________________________
+
+*   What is POST /actuator/env in Spring Cloud ?
+
+>>  Spring Cloud extends the normally read-only /actuator/env into something that can update the application's
+    runtime Environment - e.g. POST /actuator/env with {"name": "app.timeout", "value": "5000"} flows into
+    the Spring Environment and any @ConfigurationProperties bound to it. This changes the runtime Environment
+    only - it does NOT rewrite application.properties/yml on disk - and the exact behavior depends on how the
+    Spring Cloud configuration setup is wired.
+
+________________________________________________________________________________________________________________________
+
+*   What is /actuator/refresh in Spring Cloud ?
+
+>>  It refreshes configuration for beans participating in Spring Cloud's refresh mechanism - POST
+    /actuator/refresh triggers refreshable configuration to pick up whatever changed, most commonly used
+    together with @RefreshScope-annotated beans, letting selected configuration update at runtime without
+    restarting the whole application.
+
+________________________________________________________________________________________________________________________
+
+*   What is @RefreshScope ?
+
+>>  @RefreshScope marks a bean so it can be recreated when a refresh is triggered - e.g. a @RefreshScope
+    @Component reading @Value("${payment.timeout}") will get that field re-read with its updated value after a
+    POST /actuator/refresh, without the rest of the application context needing to restart.
+
+________________________________________________________________________________________________________________________
+
+*   What is /actuator/restart in Spring Cloud ?
+
+>>  It restarts the whole Spring ApplicationContext via POST /actuator/restart - a completely new
+    ApplicationContext replaces the current one. This is different from /actuator/refresh, which only updates
+    refreshable configuration within the existing context - restart is a much heavier, more powerful operation
+    and should be heavily secured.
+
+________________________________________________________________________________________________________________________
+
+*   What are /actuator/pause and /actuator/resume in Spring Cloud ?
+
+>>  These control the lifecycle state of the Spring application - /actuator/pause stops the application's
+    lifecycle, /actuator/resume resumes it (Running -> pause -> Paused -> resume -> Running). They're Spring
+    Cloud management capabilities, not normal business APIs.
+
+________________________________________________________________________________________________________________________
+
+*   What is Spring Cloud Bus and how does it work with Actuator ?
+
+>>  Spring Cloud Bus broadcasts configuration/management events across multiple application instances using a
+    messaging system like RabbitMQ or Kafka. Without Bus, POST /actuator/refresh only refreshes the one
+    instance you called it on. With Bus, POST /actuator/busrefresh publishes the refresh event through Spring
+    Cloud Bus, which fans it out so every instance (Pod A, B, C...) refreshes together - particularly useful in
+    a horizontally scaled microservice deployment where you don't want to call /refresh on every instance
+    individually.
+
+________________________________________________________________________________________________________________________
+
+*   What is /actuator/busrefresh ?
+
+>>  It publishes a refresh event through Spring Cloud Bus so multiple application instances can all refresh
+    their configuration together - the flow is Admin -> Instance A -> Spring Cloud Bus -> RabbitMQ/Kafka ->
+    Instance B, C, D -> each refreshes its configuration. It solves the exact limitation of
+    plain /actuator/refresh, which would otherwise only affect the single instance you called it on.
+
+________________________________________________________________________________________________________________________
+
+*   What is /actuator/busenv ?
+
+>>  It's used with Spring Cloud Bus to broadcast an Environment change to other application instances - POST
+    /actuator/busenv propagates through Spring Cloud Bus to every other instance, updating their Environment
+    too. It extends the idea of /actuator/env from a single instance to a whole distributed fleet.
+
+________________________________________________________________________________________________________________________
+
+*   What is /actuator/busshutdown ?
+
+>>  It's used with Spring Cloud Bus to broadcast a shutdown event to application instances - POST
+    /actuator/busshutdown propagates through Spring Cloud Bus and shuts down every instance that receives it.
+    Because this is such a highly privileged, destructive operation, it should only ever be exposed in tightly
+    controlled environments.
+
+________________________________________________________________________________________________________________________
+
+*   What is the difference between /actuator/env, /actuator/refresh and /actuator/busrefresh ?
+
+>>  They operate at different scopes. /actuator/env changes/inspects the Environment of one individual
+    application instance. /actuator/refresh refreshes refreshable configuration (typically @RefreshScope beans)
+    within that one instance. /actuator/busrefresh publishes a refresh event through Spring Cloud Bus so every
+    instance in a distributed deployment refreshes together, rather than needing to call refresh on each one
+    individually.
+
+________________________________________________________________________________________________________________________
+
+*   What are the important Actuator write/action endpoints to remember ?
+
+>>  From core Spring Boot: POST /actuator/loggers/{logger} and POST /actuator/shutdown. From Spring Cloud: POST
+    /actuator/env, /actuator/refresh, /actuator/restart, /actuator/pause, /actuator/resume. From Spring Cloud
+    Bus: POST /actuator/busenv, /actuator/busrefresh, /actuator/busshutdown. Most other Actuator endpoints are
+    primarily read/inspection endpoints rather than ones that perform an action.
+
+________________________________________________________________________________________________________________________
+
+*   Can Actuator itself collect arbitrary application data ?
+
+>>  Not on its own - Actuator is primarily an endpoint/management framework, not a general metrics
+    instrumentation library. For a metric, the flow is Application -> Micrometer -> MeterRegistry ->
+    Actuator's /metrics. For health information, it's HealthIndicator -> Actuator's /health. For application
+    metadata, it's InfoContributor -> Actuator's /info. And if the data doesn't fit any of those predefined
+    mechanisms, you build a custom @Endpoint exposing it at your own /actuator/<custom-endpoint> path.
+
+________________________________________________________________________________________________________________________
+
+*   What are the main extension points provided by Spring Boot Actuator ?
+
+>>  HealthIndicator adds custom health information. InfoContributor adds custom application metadata.
+    MeterRegistry (Micrometer) is how you add custom metrics. @Endpoint creates a fully custom Actuator
+    management endpoint, with @ReadOperation/@WriteOperation/@DeleteOperation adding read/update/delete
+    capabilities to it respectively. As a simple mapping: custom health data -> HealthIndicator, custom
+    metadata -> InfoContributor, custom metrics -> Micrometer, custom management API -> @Endpoint.
+
+________________________________________________________________________________________________________________________
+
+*   What is the overall mental model for Spring Boot Actuator ?
+
+>>  Think of Actuator as a production management layer wrapped around your Spring Boot application, sitting
+    alongside your actual business logic/controllers/DB/Kafka. It splits into three broad areas: Health
+    (/actuator/health), Metrics (/actuator/metrics, backed by Micrometer, which in turn feeds
+    /actuator/prometheus for Prometheus to scrape and Grafana to visualize), and Management (/env, /loggers,
+    /beans, /mappings, /shutdown, etc.). Spring Cloud then extends this same management layer specifically for
+    distributed systems, adding Refresh (/refresh), Lifecycle (/restart, /pause/resume), and Bus
+    (/busrefresh, /busenv) capabilities on top. The core distinction to keep straight: Actuator is the
+    management/operational endpoint layer, Micrometer is the metrics instrumentation/collection library,
+    Prometheus is metrics storage/scraping, Grafana is metrics visualization, and Spring Cloud Actuator is the
+    distributed configuration/lifecycle/bus extension on top of all of it.
+
+________________________________________________________________________________________________________________________

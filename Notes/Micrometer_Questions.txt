@@ -1,0 +1,495 @@
+*   What is Micrometer ?
+
+>>  Micrometer is a vendor-neutral observability and metrics instrumentation library for JVM-based applications.
+    It provides a common API for creating, recording, and managing application metrics, so application code
+    doesn't need to be tightly coupled to a particular monitoring backend - the same Micrometer instrumentation
+    can be exported to Prometheus, Datadog, New Relic, AWS CloudWatch, InfluxDB, Graphite, and others. It's most
+    commonly used together with Spring Boot Actuator, where Actuator provides the management endpoints and
+    Micrometer provides the underlying metrics infrastructure.
+
+________________________________________________________________________________________________________________________
+
+*   What problem does Micrometer solve ?
+
+>>  Without it, application code would need to call the API of one specific monitoring system directly (e.g.
+    Prometheus' or Datadog's own client library), tightly coupling the codebase to that vendor. Micrometer sits
+    in between - application code -> Micrometer API -> monitoring backend - instead of application code ->
+    Prometheus-specific API directly. Micrometer answers 'how do I measure something', while the monitoring
+    backend answers 'where do I store/send the measurement' - separating instrumentation from the choice of
+    monitoring vendor.
+
+________________________________________________________________________________________________________________________
+
+*   Is Micrometer part of Spring Boot Actuator ?
+
+>>  No, they're conceptually different libraries that integrate together. Actuator provides production-management
+    endpoints (/health, /metrics, /env, /loggers). Micrometer provides the metrics instrumentation API itself -
+    Counter, Gauge, Timer, DistributionSummary - maintained through a MeterRegistry, plus integrations with
+    monitoring systems. The relationship flows Spring Boot -> Actuator -> Micrometer -> MeterRegistry ->
+    monitoring backend. Micrometer can be used entirely without Actuator, but /actuator/metrics is specifically
+    provided by Actuator and uses Micrometer underneath.
+
+________________________________________________________________________________________________________________________
+
+*   What is a Meter in Micrometer ?
+
+>>  A Meter represents a measurement maintained by Micrometer. The major types are Counter, Gauge, Timer,
+    DistributionSummary, LongTaskTimer, FunctionCounter, FunctionTimer, and TimeGauge - each represents a
+    different aspect of application behavior, e.g. a Counter for the number of orders created, a Gauge for the
+    number of active connections, a Timer for how long processing an order takes, and a DistributionSummary for
+    the distribution of request payload sizes.
+
+________________________________________________________________________________________________________________________
+
+*   What is MeterRegistry in Micrometer ?
+
+>>  MeterRegistry is the central component that stores and manages every meter in the application - you
+    register a meter with it (e.g. Counter.builder("orders.created").register(meterRegistry)), and it acts as
+    the central entry point for creating and finding meters like counters, timers, and gauges.
+
+________________________________________________________________________________________________________________________
+
+*   What is a Counter in Micrometer ?
+
+>>  A Counter measures the number of occurrences of an event - e.g.
+    Counter.builder("orders.created").description("Number of orders created").register(meterRegistry), then
+    counter.increment() each time an order is created. A Counter is generally monotonically increasing (it only
+    goes up), which makes it suitable for measuring things like requests, errors, orders, messages processed, or
+    successful operations.
+
+________________________________________________________________________________________________________________________
+
+*   What is a Gauge in Micrometer ?
+
+>>  A Gauge represents the current value of something that can move both up and down - e.g.
+    Gauge.builder("queue.size", queue, Queue::size).register(meterRegistry). If the queue holds 100 messages
+    the gauge reads 100, if it drops to 50 the gauge reads 50 - unlike a Counter, which can only increase, a
+    Gauge naturally represents current state like queue size, active connections, active threads, or current
+    memory usage.
+
+________________________________________________________________________________________________________________________
+
+*   What is a Timer in Micrometer ?
+
+>>  A Timer measures both the duration of operations and how many times they occurred - e.g.
+    Timer.builder("order.processing").register(meterRegistry), then timer.record(() -> processOrder()). It can
+    track number of executions, total execution time, maximum execution time, and (when configured) full
+    distribution/percentiles - e.g. order.processing.count = 10000, order.processing.totalTime = 25 seconds,
+    order.processing.max = 800ms. Timer is generally the go-to meter for latency measurements.
+
+________________________________________________________________________________________________________________________
+
+*   What is DistributionSummary in Micrometer ?
+
+>>  DistributionSummary measures the distribution of arbitrary numeric values that aren't necessarily durations -
+    e.g. DistributionSummary.builder("order.amount").register(meterRegistry), then summary.record(500) for
+    each order amount observed. It's used for things like request/response payload size, order amount, or
+    batch size. The key distinction from Timer: a Timer measures time/duration specifically, while
+    DistributionSummary measures any arbitrary numeric value.
+
+________________________________________________________________________________________________________________________
+
+*   What is the difference between Counter, Gauge, Timer and DistributionSummary ?
+
+>>  Each answers a different question. Counter answers 'how many times did this event happen' (e.g. orders
+    created). Gauge answers 'what is the current value right now' (e.g. current queue size). Timer answers
+    'how long did this operation take' (e.g. order processing latency). DistributionSummary answers 'what's the
+    distribution of this numeric value' (e.g. order amount distribution) - choosing the right meter type for
+    what you're actually trying to measure is the key decision.
+
+________________________________________________________________________________________________________________________
+
+*   How do you create a custom Counter in Micrometer ?
+
+>>  Build it via MeterRegistry: Counter ordersCreated =
+    Counter.builder("orders.created").description("Number of orders created").register(meterRegistry), then
+    call ordersCreated.increment() wherever the event happens. You can also increment by a specific amount
+    (ordersCreated.increment(5)) rather than always by one. Once registered, the MeterRegistry maintains the
+    metric going forward.
+
+________________________________________________________________________________________________________________________
+
+*   How do you create a custom Timer in Micrometer ?
+
+>>  Use Timer.builder("order.processing").description("Order processing duration").register(meterRegistry),
+    then wrap the work with timer.record(() -> processOrder()) so Micrometer measures its duration
+    automatically. You can also record a known duration explicitly, e.g.
+    timer.record(250, TimeUnit.MILLISECONDS), rather than timing a live code block.
+
+________________________________________________________________________________________________________________________
+
+*   How do you create a custom Gauge in Micrometer ?
+
+>>  Register it with a reference to the object and a function that reads its current value, e.g.
+    Gauge.builder("queue.size", queue, Queue::size).register(meterRegistry) - Micrometer calls that function to
+    obtain the current value each time the monitoring system collects the metric, rather than you pushing an
+    updated value yourself. A Gauge should represent something whose value genuinely changes over time, not a
+    fixed or monotonically-increasing value.
+
+________________________________________________________________________________________________________________________
+
+*   What are Tags in Micrometer ?
+
+>>  Tags are dimensions attached to a metric - e.g.
+    Counter.builder("http.requests").tag("method", "GET").tag("status", "200").register(meterRegistry),
+    conceptually producing http.requests{method="GET", status="200"}. Tags let you break down and query a
+    metric along different dimensions - e.g. HTTP requests by method, by status, or by region.
+
+________________________________________________________________________________________________________________________
+
+*   What is the difference between a metric name and a tag ?
+
+>>  The metric name identifies what's being measured; tags provide the dimensions of that measurement. In
+    http.requests{method="GET", status="500"}, 'http.requests' is the metric name, while 'method' and
+    'status' are tag keys with 'GET' and '500' as their respective tag values. The metric name answers 'what am
+    I measuring', tags answer 'break it down by what dimensions'.
+
+________________________________________________________________________________________________________________________
+
+*   What is high cardinality in Micrometer metrics and why is it dangerous ?
+
+>>  High cardinality happens when a tag can take on a very large number of unique values - e.g. tagging
+    http.requests with userId means every distinct user creates its own unique time series. With millions of
+    users, that's millions of time series, which causes high memory consumption, large storage requirements,
+    expensive queries, and can degrade the monitoring backend's own performance. Good tags have a small, bounded
+    set of values (method=GET, status=200, region=us-east); bad tags are inherently unbounded/unique per
+    request (userId, requestId, orderId, sessionId).
+
+________________________________________________________________________________________________________________________
+
+*   What is MeterFilter in Micrometer ?
+
+>>  MeterFilter lets you control and customize meters registered in a MeterRegistry - accepting or denying
+    certain meters, renaming them, adding common tags, configuring distribution/percentile behavior, or
+    otherwise modifying meter configuration. It sits conceptually between the application/MeterRegistry and the
+    final meter that actually gets exported, letting an organization enforce common metric conventions
+    centrally rather than relying on every team to follow them manually.
+
+________________________________________________________________________________________________________________________
+
+*   How can you add common tags to all Micrometer metrics ?
+
+>>  Configure them on the registry itself: registry.config().commonTags("service", "order-service",
+    "environment", "production") - every metric emitted afterward (e.g. orders.created) automatically carries
+    those dimensions (orders.created{service="order-service", environment="production"}), which is very useful
+    for filtering/aggregating metrics across many services in a shared monitoring backend.
+
+________________________________________________________________________________________________________________________
+
+*   What is the difference between a MeterRegistry and a monitoring backend ?
+
+>>  MeterRegistry belongs to Micrometer and manages meters inside the running application process itself. The
+    monitoring backend (Prometheus, Datadog, etc.) stores and analyzes metrics outside the application. The
+    flow is Application -> MeterRegistry (in-process metric management) -> Prometheus (collection/storage/
+    querying) -> Grafana (visualization) - each piece has a distinct, non-overlapping responsibility.
+
+________________________________________________________________________________________________________________________
+
+*   What is a Micrometer registry implementation ?
+
+>>  A registry implementation connects Micrometer's metrics to one particular monitoring backend - there are
+    registry implementations for Prometheus, Datadog, CloudWatch, New Relic, InfluxDB, Graphite, and others. The
+    application code keeps using the exact same Micrometer API (Counter.builder(...), Timer.builder(...),
+    Gauge.builder(...)) regardless of which registry is plugged in - the registry implementation is what handles
+    the backend-specific integration underneath.
+
+________________________________________________________________________________________________________________________
+
+*   What is PrometheusRegistry in Micrometer ?
+
+>>  PrometheusMeterRegistry is the Micrometer registry implementation that exposes metrics in the format
+    Prometheus understands. The flow is Application -> Micrometer -> PrometheusMeterRegistry -> Prometheus
+    exposition format -> Prometheus. With Spring Boot Actuator, these metrics are commonly exposed through the
+    /actuator/prometheus endpoint.
+
+________________________________________________________________________________________________________________________
+
+*   Does Micrometer push metrics or does Prometheus pull metrics ?
+
+>>  It depends on the specific registry/backend combination being used. In the common Micrometer + Prometheus
+    setup, the application exposes /actuator/prometheus and Prometheus periodically scrapes it - a pull model.
+    Micrometer itself is designed to support many different monitoring systems, so the exact delivery mechanism
+    (push vs pull) depends on which registry implementation is actually plugged in.
+
+________________________________________________________________________________________________________________________
+
+*   How does Micrometer integrate with Spring Boot Actuator ?
+
+>>  Actuator uses Micrometer as its underlying metrics instrumentation infrastructure. For example, a custom
+    Counter registered via Counter.builder("orders.created").register(meterRegistry) and incremented becomes
+    automatically visible at /actuator/metrics/orders.created, and (with a Prometheus registry configured) also
+    at /actuator/prometheus. The full flow is Application -> Micrometer -> MeterRegistry -> Actuator ->
+    /actuator/metrics or /actuator/prometheus.
+
+________________________________________________________________________________________________________________________
+
+*   Can Micrometer be used without Spring Boot Actuator ?
+
+>>  Yes - Micrometer is an independent metrics instrumentation library, and you can use
+    Micrometer -> MeterRegistry -> monitoring backend entirely without Actuator in the picture. What you don't
+    get without Actuator is the automatic Actuator endpoints (/actuator/metrics, /actuator/prometheus) that
+    expose those metrics over HTTP - Actuator and Micrometer genuinely have separate responsibilities, and one
+    can exist without the other.
+
+________________________________________________________________________________________________________________________
+
+*   What metrics does Spring Boot automatically provide through Micrometer ?
+
+>>  Depending on the application's dependencies and configuration, Spring Boot auto-provides quite a few metrics
+    out of the box: JVM metrics (jvm.memory.used, jvm.threads.live), process metrics (process.cpu.usage,
+    process.uptime), system metrics (system.cpu.usage), HTTP metrics (http.server.requests), and database
+    connection pool metrics (hikaricp.connections.active, hikaricp.connections.pending). Additional integrations
+    can also auto-provide metrics for Kafka, RabbitMQ, Redis, and other common libraries.
+
+________________________________________________________________________________________________________________________
+
+*   What is auto-instrumentation in Micrometer/Spring Boot ?
+
+>>  Auto-instrumentation means the framework automatically creates metrics/observations for supported components
+    without the developer needing to manually instrument every operation - e.g. Spring Boot automatically
+    measures every HTTP request as http.server.requests as it flows through a controller, rather than you
+    having to manually wrap every controller method with timer.record(() -> controllerMethod()) yourself. This
+    reduces boilerplate and gives you standardized, consistent metrics for free.
+
+________________________________________________________________________________________________________________________
+
+*   What is the purpose of the Micrometer Observation API ?
+
+>>  Observation provides a common, higher-level API for observing application operations - you wrap an
+    operation you want observed (e.g. processOrder, callPaymentService, queryDatabase) with
+    Observation.createNotStarted("processOrder", observationRegistry).observe(() -> { processOrder(); }).
+    That same single observation can then feed into producing both metrics and tracing information, rather than
+    you instrumenting metrics and tracing separately for the same operation.
+
+________________________________________________________________________________________________________________________
+
+*   What is the difference between the Micrometer Metrics API and the Observation API ?
+
+>>  The Metrics API (Counter, Gauge, Timer, DistributionSummary) focuses specifically on recording measurements -
+    'how long did this operation take'. The Observation API is a broader abstraction around 'observe this
+    operation, and let configured handlers produce whatever observability data they need from it' - which can
+    include metrics, tracing, or both, from the same single instrumentation point, rather than the narrower
+    single-purpose focus of the Metrics API alone.
+
+________________________________________________________________________________________________________________________
+
+*   Can the same Micrometer Observation generate both metrics and traces ?
+
+>>  Yes - Observation is designed so different ObservationHandlers can react to the same observation
+    independently. A metrics handler can turn it into a Timer, while a tracing handler can turn the same
+    observation into a Span - so instrumenting one operation once (one Observation) can produce both metrics and
+    a trace, built around a single common observation model rather than two entirely separate instrumentation
+    mechanisms.
+
+________________________________________________________________________________________________________________________
+
+*   What is distributed tracing in Micrometer ?
+
+>>  Distributed tracing tracks a single request as it travels across multiple services - e.g. Client -> Order
+    Service -> Payment Service -> Inventory Service - represented as one Trace ID (e.g. ABC) with a separate
+    Span per service the request touched (Span A for Order Service, Span B for Payment Service, Span C for
+    Inventory Service), all belonging to that same trace. Micrometer Tracing integrates Micrometer's
+    observability model with actual tracing implementations like OpenTelemetry and Brave.
+
+________________________________________________________________________________________________________________________
+
+*   What is a Trace and what is a Span ?
+
+>>  A Trace represents the complete journey of one request through a distributed system. A Span represents one
+    individual operation within that trace (e.g. Trace ABC containing Span 1 for Order Service, Span 2 for
+    Payment Service, Span 3 for Inventory Service). A span generally carries a trace ID, its own span ID, a
+    parent span ID, start time, duration, status, and any attributes/events recorded on it.
+
+________________________________________________________________________________________________________________________
+
+*   How is trace context propagated between microservices ?
+
+>>  The trace context travels along with the request itself - e.g. Order Service calls Payment Service over
+    HTTP carrying a traceparent header with the current trace context. Payment Service extracts that context
+    and creates its own child span underneath it - so if Order Service has Trace ID ABC / Span ID 111, Payment
+    Service's resulting span would be Trace ID ABC / Span ID 222 / Parent 111. This lets the tracing backend
+    reconstruct the full parent-child relationship across every service the request touched.
+
+________________________________________________________________________________________________________________________
+
+*   What is the relationship between Micrometer Tracing and MDC ?
+
+>>  They solve different problems but work well together. Micrometer Tracing tracks distributed requests by
+    creating and propagating trace/span context. MDC stores logging context (typically tied to the current
+    thread) so a traceId/spanId can appear directly in your application logs. Combined, they mean you can take
+    a traceId you see in a log line and use it to locate the full corresponding distributed trace in your
+    tracing backend.
+
+________________________________________________________________________________________________________________________
+
+*   What is the difference between MDC and distributed tracing ?
+
+>>  MDC is primarily a logging-context mechanism (thread -> traceId=ABC -> log line), answering 'which logs
+    belong to this specific execution context'. Distributed tracing represents the actual causal flow of a
+    request across services (Trace ABC containing an Order Span, a Payment Span, and an Inventory Span),
+    answering 'where did this request travel, and how much time did each operation take'. They're
+    complementary, addressing two different observability questions.
+
+________________________________________________________________________________________________________________________
+
+*   What is context propagation in Micrometer ?
+
+>>  Context propagation means carrying observability context (like trace information) across execution
+    boundaries - HTTP calls, async execution, thread pools, reactive pipelines, and messaging systems are all
+    boundaries where context needs to be explicitly carried along (e.g. Thread A passing its trace context to
+    Thread B, or Service A passing it over HTTP to Service B). It matters because ThreadLocal-based context
+    (like MDC) doesn't automatically follow execution when work genuinely moves to a different thread.
+
+________________________________________________________________________________________________________________________
+
+*   Why is context propagation important with @Async ?
+
+>>  @Async executes the work on a different thread than the one handling the original request. Thread-local
+    context (like a traceId set on the request thread) doesn't automatically move over to that separate worker
+    thread on its own. So observability context has to be explicitly propagated to the worker thread if you
+    want correct trace/span parent-child relationships, correct MDC-based logging on the async thread, and
+    correct correlation of that asynchronous work back to the request that triggered it.
+
+________________________________________________________________________________________________________________________
+
+*   What is a MeterFilter used for in production ?
+
+>>  Suppose, your application has 100+ metrics, and every metric needs a common tag like service=order-service. Adding 
+    it manually to every Counter/Timer causes duplication and is tedious job.
+
+    Solution: Define it once using MeterFilter, so all metrics automatically get the tag without changing each metric's code.
+
+        ```
+            @Bean
+            MeterFilter commonTags() {
+                return MeterFilter.commonTags(
+                    Tags.of("service", "order-service")
+                );
+            }
+        ```
+
+________________________________________________________________________________________________________________________
+
+*   What are percentiles in Micrometer ?
+
+>>  A percentile tells you the value below which a given percentage of observations fall - e.g. p50 = 100ms
+    means 50% of requests completed within 100ms, p95 = 250ms means 95% completed within 250ms, and p99 =
+    500ms means 99% completed within 500ms. Percentiles are particularly useful for latency monitoring because
+    they reveal the tail behavior an average would otherwise hide.
+
+________________________________________________________________________________________________________________________
+
+*   Why is average latency often insufficient for monitoring ?
+
+>>  Because an average can hide a small but important percentage of very slow requests - e.g. 99 requests at
+    10ms and 1 request at 5000ms still produces an average that looks reasonably acceptable, even though one
+    request was extremely slow. Percentiles (p95, p99, p99.9) give a much better view of actual user-facing
+    latency behavior, which is why latency monitoring commonly focuses on percentiles rather than only
+    averages.
+
+________________________________________________________________________________________________________________________
+
+*   What is a histogram in Micrometer ?
+
+>>  A histogram records the distribution of observed values into discrete buckets - e.g. for latency: 0-10ms,
+    10-50ms, 50-100ms, 100-500ms, 500ms+. The monitoring backend can then use those bucket counts to calculate
+    distributions and percentiles. Histograms are particularly useful with Prometheus specifically, since
+    Prometheus can calculate quantiles directly from histogram bucket data.
+
+________________________________________________________________________________________________________________________
+
+*   What is the difference between a Timer and a Counter for HTTP requests ?
+
+>>  A Counter only tells you how many requests occurred (http.requests = 100000 - 'how many requests?'). A
+    Timer additionally captures duration alongside count (http.request.duration - 'how many requests, and how
+    long did they take?'). For HTTP latency monitoring specifically, a Timer is far more useful than a plain
+    Counter, since count alone tells you nothing about how fast or slow those requests actually were.
+
+________________________________________________________________________________________________________________________
+
+*   How can Micrometer metrics be used with Prometheus and Grafana ?
+
+>>  Micrometer records the metrics, and a PrometheusMeterRegistry exposes them in Prometheus's expected format
+    at /actuator/prometheus. The full architecture is Application -> Micrometer -> PrometheusMeterRegistry ->
+    /actuator/prometheus -> Prometheus (scrapes and stores) -> Grafana (queries and visualizes) - each layer
+    handling a distinct part of the pipeline: Micrometer records, Prometheus scrapes/stores, Grafana displays.
+
+________________________________________________________________________________________________________________________
+
+*   What is the difference between Micrometer, Prometheus and Grafana ?
+
+>>  They operate at completely different layers. Micrometer is the instrumentation library that defines and
+    records metrics inside your application. Prometheus is the monitoring system that collects, stores, and
+    lets you query time-series metrics. Grafana is the visualization/dashboarding platform that queries
+    Prometheus and displays the results as graphs/dashboards - the overall flow is Application -> Micrometer ->
+    Prometheus -> Grafana.
+
+________________________________________________________________________________________________________________________
+
+*   Can Micrometer send metrics to multiple monitoring systems ?
+
+>>  Yes - Micrometer is designed to support sending the same recorded metrics to multiple monitoring backends
+    simultaneously (e.g. Application -> Micrometer -> Prometheus, Datadog, and CloudWatch all in parallel, each
+    with their own registry implementation). Your application's actual instrumentation code stays the same
+    regardless of how many (or which) backends you're sending to.
+
+________________________________________________________________________________________________________________________
+
+*   How would you instrument a custom business operation using Micrometer ?
+
+>>  Choose the meter type based on what you actually want to measure. For duration, use a Timer - e.g. capture a
+    Timer.Sample at the start of processOrder(), then sample.stop(meterRegistry.timer("order.processing")) in
+    a finally block so it's recorded even if the method throws. For a simple event count (e.g. only counting
+    successful orders), use meterRegistry.counter("orders.success").increment() directly. As a rule: duration ->
+    Timer, number of events -> Counter, current state -> Gauge.
+
+________________________________________________________________________________________________________________________
+
+*   What are the common mistakes when designing Micrometer metrics ?
+
+>>  Using high-cardinality tags (userId, requestId, orderId) that explode into millions of unique time series;
+    creating thousands of metrics with no clear operational purpose; using a Counter where a Timer is actually
+    needed (counting requests without measuring their latency); using a Gauge for something that's really a
+    cumulative event count rather than current state; ignoring consistent metric naming conventions, which makes
+    dashboards and queries confusing; and recording excessive tag dimensions, since every additional tag
+    combination multiplies the number of distinct time series generated.
+
+________________________________________________________________________________________________________________________
+
+*   What is the overall architecture of Micrometer in a Spring Boot application ?
+
+>>  The typical flow is: Spring Boot Application -> Micrometer API, which splits into two complementary paths -
+    Metrics (recorded into a MeterRegistry, then exported to a specific registry implementation like
+    Prometheus/Datadog) and Observation (which can produce both Metrics and Tracing output via configured
+    handlers, with tracing flowing into a distributed tracing system). With Spring Boot Actuator layered on top,
+    the MeterRegistry's data is additionally exposed through Actuator's /actuator/metrics and
+    /actuator/prometheus endpoints.
+
+________________________________________________________________________________________________________________________
+
+*   What is the complete relationship between Actuator and Micrometer ?
+
+>>  They have complementary, non-overlapping responsibilities. Micrometer defines and records the actual
+    metrics. Actuator exposes management endpoints and integrates with Micrometer to surface that data over
+    HTTP. The flow: custom application code -> Micrometer Counter -> MeterRegistry -> Actuator's /metrics ->
+    Actuator's /prometheus -> Prometheus. In short: Micrometer is the metrics infrastructure, Actuator is the
+    management/inspection interface on top of it.
+
+________________________________________________________________________________________________________________________
+
+*   What is the complete mental model of Micrometer ?
+
+>>  Think of Micrometer as an abstraction layer for application observability instrumentation: you instrument an
+    operation once, and that instrumentation splits into two paths - Metrics (via MeterRegistry, using Counter/
+    Gauge/Timer/DistributionSummary, exported to Prometheus/Datadog/etc.) and Observation (via
+    ObservationRegistry, where separate handlers can independently produce Metrics and Tracing/Spans from the
+    same observation). The key vocabulary to keep straight: a Meter represents a measurement; Counter counts
+    events; Gauge measures current state; Timer measures duration; DistributionSummary measures the distribution
+    of arbitrary numeric values; Tags add dimensions to a metric; MeterRegistry is the central registry for
+    meters; MeterFilter controls/configures meters centrally; Observation is the common abstraction for
+    observing an operation; Micrometer Tracing integrates observations with distributed tracing; and Context
+    Propagation carries observability context across threads and service boundaries. The overall purpose:
+    instrument once, keep your application code independent of any specific vendor, then export metrics/traces
+    to whichever observability backend you actually use.
+
+________________________________________________________________________________________________________________________
